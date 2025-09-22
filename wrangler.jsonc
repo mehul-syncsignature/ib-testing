@@ -1,0 +1,54 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "instantbranding",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2025-03-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".open-next/assets"
+	},
+	"ai": {
+		"binding": "AI"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"env": {
+		"dev": {
+			"name": "instantbranding-dev",
+			"routes": [
+				"https://app.dev.instantbranding.ai/"
+			],
+			"vars": {
+				"ENVIRONMENT": "development",
+				"NODE_ENV": "production"
+			},
+			"ai": {
+				"binding": "AI"
+			}
+		},
+		"production": {
+			"name": "instantbranding",
+			"routes": [
+				"https://app.instantbranding.ai/"
+			],
+			"vars": {
+				"ENVIRONMENT": "production",
+				"NODE_ENV": "production"
+			},
+			"ai": {
+				"binding": "AI"
+			}
+		}
+	},
+	"placement": {
+		"mode": "smart"
+	}
+}

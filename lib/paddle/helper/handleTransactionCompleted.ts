@@ -1,0 +1,41 @@
+// lib/paddle/helper/handleTransactionCompleted.ts
+
+import { PaddleTransactionData } from "@/types/paddle";
+import { serverDb } from "@/lib/drizzle/server";
+import { users } from "@/lib/drizzle/schema";
+import { eq } from "drizzle-orm";
+import { findUserInDatabase } from "./findUserInAuth";
+
+export async function handleTransactionCompleted(
+  data: PaddleTransactionData
+): Promise<void> {
+  try {
+    const user = await findUserInDatabase(data);
+
+    if (user) {
+      const planId = data.items?.[0]?.price?.custom_data?.planId;
+
+      if (!planId) {
+        throw new Error("planId not found in price custom_data");
+      }
+
+      await serverDb
+        .update(users)
+        .set({ planId })
+        .where(eq(users.id, user.id));
+
+      if (process.env.ENVIRONMENT === "development") {
+        console.log(
+          `Updated user ${user.id} planId to: ${planId} via transaction`
+        );
+      }
+    } else {
+      const errorMsg = `User not found for userId: ${data.custom_data?.userId} or email: ${data.customer?.email}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error("Error in handleTransactionCompleted:", error);
+    throw error;
+  }
+}
