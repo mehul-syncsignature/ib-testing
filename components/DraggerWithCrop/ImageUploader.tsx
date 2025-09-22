@@ -59,8 +59,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   simpleUploader = false,
   setRemoveBackground,
   aspectRatio,
-  uploadToS3 = false,
-  uploadToR2 = true,
+  uploadToS3 = true,
+  uploadToR2 = false,
 }) => {
   // State management
   const [processingStep, setProcessingStep] = useState<ProcessingStep>("idle");
