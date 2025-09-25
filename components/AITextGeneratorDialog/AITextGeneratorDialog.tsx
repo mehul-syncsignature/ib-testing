@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useGenerateAssetVariants,
   AssetVariant,
-} from "@/hooks/useAITextGeneration";
+} from "@/hooks/aiTextGeneration";
 import { z } from "zod";
 import { createAISectionsFromVariants } from "@/common/constants/unified-bento-config";
 import { useAppContext } from "@/contexts/AppContext";

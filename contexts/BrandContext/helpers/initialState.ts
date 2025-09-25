@@ -41,6 +41,7 @@ export const defaultBrand: Brand = {
     logoUrl: "",
     headshotUrl: "https://assets.dev.instantbranding.ai/dummy.png",
     headshotGradient: "solid-primary",
+    companyName: "",
   },
 };
 

@@ -8,16 +8,12 @@ export interface Headshot {
   opacity?: number;
 }
 
-export interface UserPlanLimits {
-  allowedTemplates: Record<string, number[]>;
-}
-
 export interface UserPlan {
-  id: string;
+  id: number;
   name: string;
   description: string | null;
   planType: string;
-  limits: UserPlanLimits[] | null;
+  allowedTemplates: Record<string, number[]>;
 }
 
 export interface AppUser {

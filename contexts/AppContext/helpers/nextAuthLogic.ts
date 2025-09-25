@@ -7,6 +7,9 @@ import { useSession } from "next-auth/react";
 import { SectionConfig } from "@/common/constants/unified-bento-config";
 import { AppUser } from "../types";
 import { useRouter } from "next/navigation";
+import { useBrandContext } from "@/contexts/BrandContext";
+import { Brand } from "@/contexts/BrandContext/types";
+import { defaultBrand } from "@/contexts/BrandContext/helpers/initialState";
 
 interface NextAuthLogicProps {
   setCurrentUser: (user: AppUser | null) => void;
@@ -19,7 +22,7 @@ interface NextAuthLogicProps {
 const isPremiumPlan = (user: AppUser | null): boolean => {
   if (!user?.plan?.id) return false;
   // Plan ID "1" is free plan, anything else (2, 3, etc.) is premium
-  return user.plan.id !== "1";
+  return user.plan.id !== 1;
 };
 
 export const useNextAuthLogic = ({
@@ -30,18 +33,21 @@ export const useNextAuthLogic = ({
 }: NextAuthLogicProps) => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { setBrands, setBrand } = useBrandContext();
 
   useEffect(() => {
-    // Handle loading state
-    setIsLoading(status === "loading");
+    const handleAuth = async () => {
+      // Handle loading state
+      setIsLoading(status === "loading");
 
-    if (status === "loading") {
-      return; // Still loading
-    }
+      if (status === "loading") {
+        return; // Still loading
+      }
 
-    if (status === "authenticated" && session?.user) {
-      // User is authenticated, fetch user data from our API
-      const fetchUserData = async () => {
+      if (status === "authenticated" && session?.user) {
+        // Set loading to true while fetching user data
+        setIsLoading(true);
+
         try {
           const response = await fetch("/api/user");
           const data = await response.json();
@@ -70,28 +76,57 @@ export const useNextAuthLogic = ({
               return;
             }
 
-            // Brands will be fetched by dashboard components when needed
+            // Fetch brands if user onboarding is complete
+            if (userData.onboardingStatus === "COMPLETE") {
+              try {
+                const brandsResponse = await fetch("/api/brands");
+                const brandsData = (await brandsResponse.json()) as {
+                  success: boolean;
+                  data: Brand[];
+                };
+
+                if (brandsResponse.ok && brandsData.success) {
+                  setBrands(brandsData.data);
+                  // Set first brand as current if brands exist
+                  if (brandsData.data && brandsData.data.length > 0) {
+                    setBrand(brandsData.data[0]);
+                  }
+                }
+              } catch {
+                // Silently handle brands fetch error
+                setBrands([]);
+              }
+            }
           } else {
             // User doesn't exist in our database, clear everything
             setCurrentUser(null);
             setIsSignedIn(false);
             setIsPremiumUser(false);
+            setBrands([]);
+            setBrand(defaultBrand);
           }
         } catch {
           // Silently handle error in production
           setCurrentUser(null);
           setIsSignedIn(false);
           setIsPremiumUser(false);
+          setBrands([]);
+          setBrand(defaultBrand);
+        } finally {
+          setIsLoading(false);
         }
-      };
+      } else {
+        // No session, clear everything
+        setCurrentUser(null);
+        setIsSignedIn(false);
+        setIsPremiumUser(false);
+        setBrands([]);
+        setBrand(defaultBrand);
+        setIsLoading(false);
+      }
+    };
 
-      fetchUserData();
-    } else {
-      // No session, clear everything
-      setCurrentUser(null);
-      setIsSignedIn(false);
-      setIsPremiumUser(false);
-    }
+    handleAuth();
   }, [session?.user?.id, status]);
 
   // Provide a method to refresh authentication state
@@ -125,16 +160,42 @@ export const useNextAuthLogic = ({
             router.push("/dashboard");
             return;
           }
+
+          // Fetch brands if user onboarding is complete
+          if (userData.onboardingStatus === "COMPLETE") {
+            try {
+              const brandsResponse = await fetch("/api/brands");
+              const brandsData = (await brandsResponse.json()) as {
+                success: boolean;
+                data: Brand[];
+              };
+
+              if (brandsResponse.ok && brandsData.success) {
+                setBrands(brandsData.data);
+                // Set first brand as current if brands exist
+                if (brandsData.data && brandsData.data.length > 0) {
+                  setBrand(brandsData.data[0]);
+                }
+              }
+            } catch {
+              // Silently handle brands fetch error
+              setBrands([]);
+            }
+          }
         } else {
           setCurrentUser(null);
           setIsSignedIn(false);
           setIsPremiumUser(false);
+          setBrands([]);
+          setBrand(defaultBrand);
         }
       } catch {
         // Silently handle error in production
         setCurrentUser(null);
         setIsSignedIn(false);
         setIsPremiumUser(false);
+        setBrands([]);
+        setBrand(defaultBrand);
       } finally {
         setIsLoading(false);
       }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, createRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { useBrandContext } from "@/contexts/BrandContext";
 import { useAppContext } from "@/contexts/AppContext";
@@ -20,8 +21,10 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
   const { canvasRef } = useCanvasRef();
   const { carouselSlideRefs } = useCarouselRefs();
   const [scale, setScale] = useState(1);
+  
+  const searchParams = useSearchParams();
+  const designId = searchParams.get('designId');
 
-  // Context hooks
   const {
     state: {
       currentSlideIndex,
@@ -41,10 +44,18 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
     state: { headshot },
   } = useAppContext();
 
-  // Initialize carousel
   useEffect(() => {
-    initializeCarouselSlides();
-  }, []);
+    if (!designId) {
+      initializeCarouselSlides();
+    } else {
+      if (slides.length > 0) {
+        carouselSlideRefs.length = 0;
+        slides.forEach(() => 
+          carouselSlideRefs.push(createRef<HTMLDivElement | null>())
+        );
+      }
+    }
+  }, [designId, slides.length]);
 
   // Initialize carousel with 3 slides
   const initializeCarouselSlides = () => {

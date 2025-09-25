@@ -17,9 +17,9 @@ import { useAssetContext } from "@/contexts/AssetContext";
 
 interface Design {
   id: string;
-  asset_type: string;
-  style_id: number;
-  template_id: number;
+  assetType: string;
+  styleId: number;
+  templateId: number;
   data: Record<string, unknown>;
 }
 
@@ -85,10 +85,10 @@ export const RecentDesignsGrid = () => {
   }, []);
 
   const onRecentDesign = (design: Design) => {
-    if (isValidAssetType(design.asset_type)) {
-      setCurrentAssetType(design.asset_type);
-      setStyleId(design.style_id);
-      setTemplateId(design.template_id.toString());
+    if (isValidAssetType(design.assetType)) {
+      setCurrentAssetType(design.assetType);
+      setStyleId(design.styleId);
+      setTemplateId(design.templateId.toString());
       setDataConfig(design.data);
     }
   };
@@ -128,7 +128,7 @@ export const RecentDesignsGrid = () => {
 
   // Filter valid designs directly in render
   const validDesigns = designs.filter((design: Design) =>
-    isValidAssetType(design.asset_type)
+    isValidAssetType(design.assetType)
   );
 
   if (validDesigns.length === 0) {
@@ -157,7 +157,7 @@ export const RecentDesignsGrid = () => {
           transition={{ duration: 0.3 }}
         >
           {validDesigns.slice(0, 12).map((design: Design, index: number) => {
-            const assetType = design.asset_type as AssetTypeKeys;
+            const assetType = design.assetType as AssetTypeKeys;
             const dimensions = getAssetDimensions(assetType);
             const gridGap = 16;
             const availableWidth =
@@ -175,7 +175,7 @@ export const RecentDesignsGrid = () => {
 
             // Get styles directly without caching
             // const designStyles = getAllStylesByType(assetType, templateId);
-            // const designStyle = designStyles?.[design.style_id];
+            // const designStyle = designStyles?.[design.styleId];
 
             return (
               <motion.div
@@ -193,7 +193,7 @@ export const RecentDesignsGrid = () => {
                   onClick={() => onRecentDesign(design)}
                 >
                   <PremiumTemplate
-                    templateId={design.template_id}
+                    templateId={design.templateId}
                     assetType={assetType}
                     className="w-full cursor-pointer flex items-center justify-center rounded-[8px] border border-[#E8E8E8] bg-[#F1F3F3] overflow-hidden relative"
                   >
@@ -215,7 +215,7 @@ export const RecentDesignsGrid = () => {
                       >
                         {/* <TemplateWrapper
                           assetType={assetType}
-                          templateNumber={design.template_id}
+                          templateNumber={design.templateId}
                           // data={design.data}
                           style={designStyle}
                           brand={brand}

@@ -92,7 +92,6 @@ const OnboardingPage = () => {
     state: { brand },
     setBrand,
   } = useBrandContext();
-
   const [updateUser, { loading: updateLoading }] = useUpdateUser();
   const [handleUserDependencies, { loading: dependenciesLoading }] =
     useUserDependencies();
@@ -316,9 +315,9 @@ const OnboardingPage = () => {
                           name="imageUrl"
                           form={form}
                           watch={watch}
-                          data={{ 
+                          data={{
                             imageUrl: field.value || "",
-                            showBrandMark: false // Default value for onboarding
+                            showBrandMark: false, // Default value for onboarding
                           }}
                           bucketName="dropzone-upload"
                           onUploadComplete={(url) => {

@@ -36,15 +36,15 @@ export interface CreateBrandDialogHandle {
 }
 
 interface CreateBrandDialogProps {
-  onSubmit: (brandName: string) => void;
+  onSubmit: (brandName: string) => Promise<void>;
+  loading?: boolean;
 }
 
 const CreateBrandDialog = forwardRef<
   CreateBrandDialogHandle,
   CreateBrandDialogProps
->(({ onSubmit }, ref) => {
+>(({ onSubmit, loading = false }, ref) => {
   const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CreateBrandFormData>({
     resolver: zodResolver(createBrandSchema),
@@ -65,7 +65,6 @@ const CreateBrandDialog = forwardRef<
   }));
 
   const handleSubmit = async (formData: CreateBrandFormData) => {
-    setIsSubmitting(true);
     try {
       await onSubmit(formData.name);
       setOpen(false);
@@ -73,8 +72,6 @@ const CreateBrandDialog = forwardRef<
     } catch (error) {
       // Error handling will be done by the parent component
       console.error("Error creating brand:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -118,12 +115,12 @@ const CreateBrandDialog = forwardRef<
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                disabled={isSubmitting}
+                disabled={loading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Brand"}
+              <Button type="submit" disabled={loading}>
+                {loading ? "Creating..." : "Create Brand"}
               </Button>
             </div>
           </form>

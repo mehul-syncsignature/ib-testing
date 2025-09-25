@@ -1,18 +1,43 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-// Simple function to get NextAuth session when needed
+let cachedSession: { data: any; timestamp: number } | null = null;
+let sessionPromise: Promise<any> | null = null;
+
 const getNextAuthSession = async () => {
   if (typeof window === "undefined") return null;
 
+  if (cachedSession && cachedSession.timestamp > Date.now() - 300000) {
+    return cachedSession.data;
+  }
+
+  if (sessionPromise) {
+    return sessionPromise;
+  }
+
   try {
-    const { getSession } = await import("next-auth/react");
-    return await getSession();
+    sessionPromise = import("next-auth/react").then(({ getSession }) => getSession());
+    const session = await sessionPromise;
+    
+    cachedSession = {
+      data: session,
+      timestamp: Date.now()
+    };
+    
+    return session;
   } catch (error) {
     if (process.env.ENVIRONMENT === "development") {
       console.error("Failed to get NextAuth session:", error);
     }
     return null;
+  } finally {
+    sessionPromise = null;
   }
+};
+
+export const clearSessionCache = () => {
+  cachedSession = null;
+  sessionPromise = null;
 };
 
 const axiosInstance = axios.create({
@@ -23,7 +48,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Simplified auth token getter using NextAuth
 const getAuthToken = async (): Promise<string | null> => {
   if (typeof window === "undefined") return null;
 
@@ -31,9 +55,6 @@ const getAuthToken = async (): Promise<string | null> => {
     const session = await getNextAuthSession();
     if (!session?.user) return null;
 
-    // NextAuth sessions don't have access tokens by default
-    // For API authentication, we rely on cookies/server-side session validation
-    // Return a placeholder that indicates we have a valid session
     return "nextauth-session";
   } catch (error) {
     if (process.env.ENVIRONMENT === "development") {
@@ -46,7 +67,6 @@ const getAuthToken = async (): Promise<string | null> => {
 // Request interceptor
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    // Add auth token (only on client side)
     if (typeof window !== "undefined" && config.headers) {
       try {
         const token = await getAuthToken();
@@ -68,7 +88,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {

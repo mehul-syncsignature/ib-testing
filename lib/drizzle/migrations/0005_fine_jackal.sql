@@ -1,0 +1,2 @@
+ALTER TABLE "Post" ADD COLUMN "brandId" uuid NOT NULL;--> statement-breakpoint
+ALTER TABLE "Post" ADD CONSTRAINT "Post_brandId_Brand_id_fk" FOREIGN KEY ("brandId") REFERENCES "public"."Brand"("id") ON DELETE cascade ON UPDATE cascade;

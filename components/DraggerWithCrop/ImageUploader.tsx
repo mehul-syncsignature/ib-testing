@@ -9,13 +9,13 @@ import Dropzone from "./components/Dropzone";
 import CropDialog from "./components/CropDialog";
 import PositionDragger from "./components/PositionDragger";
 import Image from "next/image";
-import { useBackgroundRemoval } from "@/hooks/useBackgroundRemoval";
+import { useBackgroundRemoval } from "@/hooks/backgroundRemoval";
 import {
   useS3Upload,
   blobUrlToFile,
   detectMimeTypeFromBlob,
-} from "@/hooks/useS3Upload";
-import { useR2Upload } from "@/hooks/useR2Upload";
+} from "@/hooks/s3Upload";
+import { useR2Upload } from "@/hooks/r2Upload";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import ImageViewer from "./ImageViewer";

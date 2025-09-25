@@ -4,22 +4,33 @@
 
 import React, { useEffect, useRef } from "react";
 import { useBrandContext } from "@/contexts/BrandContext";
-import BrandItem from "./components/BrandItem";
 import { Brand } from "@/contexts/BrandContext/types";
-import { PaletteIcon, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Folder,
+  PanelsLeftBottom,
+  Sparkles,
+} from "lucide-react";
 import { defaultBrand } from "@/contexts/BrandContext/helpers/initialState";
 import { useRouter } from "next/navigation";
-import { useDeleteBrand } from "@/hooks/brand";
+import { useDeleteBrand, useUpsertBrand } from "@/hooks/brand";
 import { toast } from "sonner";
 import { loadBrandFonts } from "@/lib/fonts";
 import CreateBrandDialog, {
   CreateBrandDialogHandle,
 } from "./components/CreateBrandDialog";
 import AuthDialog, { AuthDialogHandle } from "@/components/Auth/AuthDialog";
-import { useAppContext } from "@/contexts/AppContext";
+import BrandSwitcher from "@/components/BrandSwitcher";
+import { omit } from "lodash";
 
-const DashboardControl = () => {
+interface DashboardControlProps {
+  activeSection?: "brand" | "ai-tools" | "my-assets";
+  onSectionChange?: (section: "brand" | "ai-tools" | "my-assets") => void;
+}
+
+const DashboardControl = ({
+  activeSection = "brand",
+  onSectionChange,
+}: DashboardControlProps) => {
   const router = useRouter();
   const createBrandDialogRef = useRef<CreateBrandDialogHandle>(null);
 
@@ -28,10 +39,11 @@ const DashboardControl = () => {
     setBrand,
   } = useBrandContext();
   const [deleteBrand] = useDeleteBrand();
+  const [upsertBrand, { loading: upsertLoading }] = useUpsertBrand();
 
-  const {
-    state: { isPremiumUser },
-  } = useAppContext();
+  // const {
+  //   state: { isPremiumUser },
+  // } = useAppContext();
 
   // Load fonts when brand changes
   useEffect(() => {
@@ -54,7 +66,7 @@ const DashboardControl = () => {
     }
   }, [brands]);
 
-  const handleBrandClick = (brand: Brand) => {
+  const handleBrandSelect = (brand: Brand) => {
     setBrand(brand);
   };
 
@@ -65,34 +77,33 @@ const DashboardControl = () => {
   const authDialogRef = useRef<AuthDialogHandle>(null);
 
   const heandleCreateBrand = () => {
-    if (isPremiumUser) {
-      createBrandDialogRef.current?.open();
-    } else {
-      authDialogRef?.current?.setAuthView("signUp");
-      authDialogRef?.current?.open();
-    }
+    // if (isPremiumUser) {
+    createBrandDialogRef.current?.open();
+    // } else {
+    //   authDialogRef?.current?.setAuthView("signUp");
+    //   authDialogRef?.current?.open();
+    // }
   };
 
   const handleCreateBrandSubmit = async (brandName: string) => {
     try {
-      // Create a new brand with the provided name
       const newBrand = {
         ...defaultBrand,
         name: brandName,
       };
+      
+      const brandToCreate = omit(newBrand, "id");
+      
+      await upsertBrand(brandToCreate);
+      
+      toast.success("Brand created successfully!");
 
-      setBrand(newBrand);
-
-      // Show success message
-      // toast.success("Brand created successfully!");
-
-      // Navigate to brand setup
       router.push(`/brand-setup`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to create brand: ${errorMessage}`);
-      throw error; // Re-throw to be handled by the dialog
+      throw error; 
     }
   };
 
@@ -116,40 +127,69 @@ const DashboardControl = () => {
     <>
       <AuthDialog showSignUpForm={false} ref={authDialogRef} />
 
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full select-none">
         <div className="flex-grow overflow-y-auto space-y-8">
-          <div className="space-y-3">
-            <div className="p-4 flex justify-between mb-0 pb-0">
-              <div className="flex items-center gap-2 pb-0 mb-0">
-                <PaletteIcon className="w-4 h-4" />
-                <span className="font-medium text-sm">BRANDS</span>
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={heandleCreateBrand}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+          {/* Brand Dropdown Selector */}
+          {brands && brands.length > 0 && (
+            <BrandSwitcher
+              brands={brands}
+              currentBrand={brand}
+              onBrandSelect={handleBrandSelect}
+              onBrandEdit={handleBrandEdit}
+              onBrandDelete={handleConfirmDelete}
+              onCreateBrand={heandleCreateBrand}
+              className="px-4 pt-4 mb-[8px]"
+            />
+          )}
+
+          <div className="px-4 space-y-2">
+            <div
+              onClick={() => onSectionChange?.("brand")}
+              className={`w-full text-left flex gap-2 p-4 rounded-[.5rem] font-norml cursor-pointer ${
+                activeSection === "brand"
+                  ? "bg-[#22808D] text-white"
+                  : "text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <PanelsLeftBottom
+                className={
+                  activeSection === "brand" ? "text-white" : "text-primary"
+                }
+              />
+              DESIGN TEMPLATES
             </div>
-            {brands &&
-              brands?.map((brandItem: Brand, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-2 p-4 w-fll m-0 border-b bg-background"
-                >
-                  <BrandItem
-                    id={brandItem.id!}
-                    name={brandItem.name}
-                    isSelected={brand?.id === brandItem.id}
-                    colors={brandItem?.config?.originalColors}
-                    onClick={() => handleBrandClick(brandItem)}
-                    onEdit={() => handleBrandEdit(brandItem)}
-                    onDelete={() => handleConfirmDelete(brandItem)}
-                  />
-                </div>
-              ))}
+
+            <div
+              onClick={() => onSectionChange?.("ai-tools")}
+              className={`w-full text-left flex gap-2 p-4 rounded-[.5rem] font-normal cursor-pointer ${
+                activeSection === "ai-tools"
+                  ? "bg-[#22808D] text-white"
+                  : "text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Sparkles
+                className={
+                  activeSection === "ai-tools" ? "text-white" : "text-primary"
+                }
+              />
+              AI TOOLS
+            </div>
+
+            <div
+              onClick={() => onSectionChange?.("my-assets")}
+              className={`w-full text-left flex gap-2 p-4 rounded-[.5rem] font-normal cursor-pointer ${
+                activeSection === "my-assets"
+                  ? "bg-[#22808D] text-white"
+                  : " text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Folder
+                className={
+                  activeSection === "my-assets" ? "text-white" : "text-primary"
+                }
+              />
+              MY ASSETS
+            </div>
           </div>
         </div>
       </div>
@@ -158,6 +198,7 @@ const DashboardControl = () => {
       <CreateBrandDialog
         ref={createBrandDialogRef}
         onSubmit={handleCreateBrandSubmit}
+        loading={upsertLoading}
       />
     </>
   );

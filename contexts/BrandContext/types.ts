@@ -44,6 +44,7 @@ export interface Brand {
     logoUrl: string;
     headshotUrl: string;
     headshotGradient: GradientType;
+    companyName: string;
   };
 }
 

@@ -2,8 +2,11 @@
 
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { useAppContext } from "@/contexts/AppContext";
-import { useFetchBrands } from "@/hooks/brand";
+import { useBrandContext } from "@/contexts/BrandContext";
+import { useAssetContext } from "@/contexts/AssetContext";
+import { useGetDesignsByBrand } from "@/hooks/designs";
 import { useEffect } from "react";
+import { useGetPostsByBrand } from "@/hooks/post";
 
 const DataInitializationProvider = ({
   children,
@@ -11,19 +14,43 @@ const DataInitializationProvider = ({
   children: React.ReactNode;
 }) => {
   const {
-    state: { isLoading, currentUser },
+    state: { isLoading },
   } = useAppContext();
-  const [fetchBrands, { loading }] = useFetchBrands();
+  const {
+    state: { brand },
+  } = useBrandContext();
+  const { setDesigns, setPosts } = useAssetContext();
+  const [getDesignsByBrand] = useGetDesignsByBrand();
+  const [getPostByBrand] = useGetPostsByBrand();
 
-  // Fetch brands when component mounts and user is authenticated
   useEffect(() => {
-    if (currentUser?.id && currentUser?.onboardingStatus === "COMPLETE") {
-      fetchBrands();
+    if (brand) {
+      const fetchDesigns = async () => {
+        try {
+          const designs = await getDesignsByBrand(brand.id!);
+          setDesigns(designs);
+        } catch {
+          setDesigns([]);
+        }
+      };
+      const fetchPosts = async () => {
+        try {
+          if (!brand.id) {
+            return;
+          }
+          const posts = await getPostByBrand(brand.id);
+          setPosts(posts);
+        } catch {
+          setDesigns([]);
+        }
+      };
+      fetchDesigns();
+      fetchPosts();
     }
-  }, [currentUser?.id, currentUser?.onboardingStatus]);
+  }, [brand?.id]);
 
   // If loading, show loader
-  if (isLoading || loading) {
+  if (isLoading) {
     return <FullScreenLoader />;
   }
 

@@ -36,7 +36,7 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
               <ScrollbarProvider>
                 <PaddleProvider>
                   <DataInitializationProvider>
-                    {children}
+                  {children}
                   </DataInitializationProvider>
                   <Toaster />
                 </PaddleProvider>

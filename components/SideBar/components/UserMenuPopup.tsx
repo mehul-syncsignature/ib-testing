@@ -1,6 +1,6 @@
 import {
   DropdownMenu,
-  // DropdownMenuTrigger,
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -14,6 +14,7 @@ import {
   Settings,
   Heart,
   ChevronRight,
+  // Crown,
 } from "lucide-react";
 
 const UserMenuPopup = ({
@@ -32,44 +33,69 @@ const UserMenuPopup = ({
   hasProPlan: boolean;
 }) => (
   <DropdownMenu>
-    {/* <DropdownMenuTrigger asChild> */}
-    {/* <button className="relative w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium hover:opacity-90 transition-opacity">
+    <DropdownMenuTrigger asChild>
+      {/* <DropdownMenuTrigger asChild> */}
+      {/* <button className="relative w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium hover:opacity-90 transition-opacity">
         {displayName
           .split(" ")
           .map((n) => n[0])
           .join("")
           .substring(0, 2)
           .toUpperCase()} */}
-    {/* {hasProPlan && (
+      {/* {hasProPlan && (
           <span className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full p-1">
             <Crown className="w-3 h-3 text-white" />
           </span>
         )} */}
-    {/* </button> */}
-    <div className="relative w-[37px] h-[36px] bg-[#22808D] rounded-[8.2px]">
-      {/* Ellipse 21530 (background face) */}
-      <div className="absolute left-[9.9px] top-[6.3px] w-[17.1px] h-[17.1px] rounded-full bg-[#70D0DD]" />
-      {/* Ellipse 21521 */}
-      <div className="absolute left-[11.7px] top-[2.7px] w-[8.1px] h-[8.1px] rounded-full bg-[#021B1F]" />
-      {/* Ellipse 21522 */}
-      <div className="absolute left-[17.1px] top-[3.6px] w-[4.5px] h-[6.3px] rounded-full bg-[#021B1F]" />
-      {/* Ellipse 21523 */}
-      <div className="absolute left-[19.8px] top-[5.4px] w-[6.3px] h-[6.3px] rounded-full bg-[#021B1F]" />
-      {/* Ellipse 21524 */}
-      <div className="absolute left-[9.9px] top-[5.4px] w-[6.3px] h-[6.3px] rounded-full bg-[#021B1F]" />
-      {/* Vector 3445 (line) */}
-      <div className="absolute left-[15.3px] top-[18px] w-[6.3px] h-[1.51px] border-t-[0.9px] border-[#C9F8FF]" />
-      {/* Rectangle 921853 */}
-      <div className="absolute left-[5.4px] top-[23.4px] w-[26.1px] h-[13.7px] bg-[#FEB101] rounded-full" />
-      {/* Rectangle 921851 */}
-      <div className="absolute left-[15.3px] top-[21.6px] w-[6.3px] h-[7.2px] bg-[#70D0DD]" />
-    </div>
+      {/* </button> */}
+
+      <div className="relative w-[37px] h-[36px] rounded-[7.2px] bg-[#22808D]">
+        {/* Avatar vector shapes go here */}
+        <div className="relative w-[37px] h-[36px] bg-[#22808D] rounded-[8.2px]">
+          {/* Ellipse 21530 (background face) */}
+          <div className="absolute left-[9.9px] top-[6.3px] w-[17.1px] h-[17.1px] rounded-full bg-[#70D0DD]" />
+          {/* Ellipse 21521 */}
+          <div className="absolute left-[11.7px] top-[2.7px] w-[8.1px] h-[8.1px] rounded-full bg-[#021B1F]" />
+          {/* Ellipse 21522 */}
+          <div className="absolute left-[17.1px] top-[3.6px] w-[4.5px] h-[6.3px] rounded-full bg-[#021B1F]" />
+          {/* Ellipse 21523 */}
+          <div className="absolute left-[19.8px] top-[5.4px] w-[6.3px] h-[6.3px] rounded-full bg-[#021B1F]" />
+          {/* Ellipse 21524 */}
+          <div className="absolute left-[9.9px] top-[5.4px] w-[6.3px] h-[6.3px] rounded-full bg-[#021B1F]" />
+          {/* Vector 3445 (line) */}
+          <div className="absolute left-[15.3px] top-[18px] w-[6.3px] h-[1.51px] border-t-[0.9px] border-[#C9F8FF]" />
+          {/* Rectangle 921853 */}
+          <div className="absolute left-[5.4px] top-[23.4px] w-[26.1px] h-[13.7px] bg-[#FEB101] rounded-full" />
+          {/* Rectangle 921851 */}
+          <div className="absolute left-[15.3px] top-[21.6px] w-[6.3px] h-[7.2px] bg-[#70D0DD]" />
+        </div>
+      </div>
+    </DropdownMenuTrigger>
+
     {/* </DropdownMenuTrigger> */}
     <DropdownMenuContent className="w-72 p-0 ml-4 mb-4">
       {/* Header */}
       <div className="flex flex-col items-center justify-center bg-[#F1F3F3] border-b border-[#E1E3E3] py-3 rounded-t-md">
         <div className="relative w-[37px] h-[36px] rounded-[7.2px] bg-[#22808D]">
           {/* Avatar vector shapes go here */}
+          <div className="relative w-[37px] h-[36px] bg-[#22808D] rounded-[8.2px]">
+            {/* Ellipse 21530 (background face) */}
+            <div className="absolute left-[9.9px] top-[6.3px] w-[17.1px] h-[17.1px] rounded-full bg-[#70D0DD]" />
+            {/* Ellipse 21521 */}
+            <div className="absolute left-[11.7px] top-[2.7px] w-[8.1px] h-[8.1px] rounded-full bg-[#021B1F]" />
+            {/* Ellipse 21522 */}
+            <div className="absolute left-[17.1px] top-[3.6px] w-[4.5px] h-[6.3px] rounded-full bg-[#021B1F]" />
+            {/* Ellipse 21523 */}
+            <div className="absolute left-[19.8px] top-[5.4px] w-[6.3px] h-[6.3px] rounded-full bg-[#021B1F]" />
+            {/* Ellipse 21524 */}
+            <div className="absolute left-[9.9px] top-[5.4px] w-[6.3px] h-[6.3px] rounded-full bg-[#021B1F]" />
+            {/* Vector 3445 (line) */}
+            <div className="absolute left-[15.3px] top-[18px] w-[6.3px] h-[1.51px] border-t-[0.9px] border-[#C9F8FF]" />
+            {/* Rectangle 921853 */}
+            <div className="absolute left-[5.4px] top-[23.4px] w-[26.1px] h-[13.7px] bg-[#FEB101] rounded-full" />
+            {/* Rectangle 921851 */}
+            <div className="absolute left-[15.3px] top-[21.6px] w-[6.3px] h-[7.2px] bg-[#70D0DD]" />
+          </div>
         </div>
         <div className="flex flex-col items-center gap-1 mt-2 w-40">
           <span className="font-semibold text-xs text-[#333] block w-full text-center">

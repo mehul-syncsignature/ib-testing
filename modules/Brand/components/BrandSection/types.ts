@@ -11,12 +11,12 @@ export type AssetTypeKeys =
 // Use your existing Design type instead of creating a new one
 export interface Design {
   id: string;
-  template_id: number;
-  asset_type: string; // Keep as string to match your existing API
-  style_id: number;
+  templateId: number;
+  assetType: string; // Keep as string to match your existing API
+  styleId: number;
   data: any;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function isValidAssetType(

@@ -1,11 +1,14 @@
 // contexts/AssetContext/helpers/actions.ts
+
 import {
   AssetState,
   AssetTypeKeys,
   CarouselSlide,
   Data,
+  Design,
   Style,
 } from "../types";
+import { Post } from "@/hooks/post";
 
 export const actions = {
   // Asset styles actions
@@ -101,5 +104,27 @@ export const actions = {
         slides: newSlides,
       };
     });
+  },
+
+  // Design actions
+  setDesigns: (
+    setState: React.Dispatch<React.SetStateAction<AssetState>>,
+    designs: Design[]
+  ) => {
+    setState((state) => ({
+      ...state,
+      designs,
+    }));
+  },
+
+  // Post actions
+  setPosts: (
+    setState: React.Dispatch<React.SetStateAction<AssetState>>,
+    posts: Post[]
+  ) => {
+    setState((state) => ({
+      ...state,
+      posts,
+    }));
   },
 };

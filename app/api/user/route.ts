@@ -7,21 +7,16 @@ import {
   handleAuthError,
 } from "@/lib/auth-helpers";
 import { serverDb } from "@/lib/drizzle/server";
-import { users, plans, planLimits } from "@/lib/drizzle/schema";
+import { users, plans } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { createMailerLiteSubscriber } from "@/lib/mailerlite/subscriber";
 
-export interface UserPlanLimits {
-  allowedTemplates: Record<string, number[]>;
-  // Add other limit properties as needed
-}
-
 export interface UserPlan {
-  id: string;
+  id: number;
   name: string;
   description: string | null;
   planType: string; // "free", "one-time", "subscription"
-  limits: UserPlanLimits[] | null;
+  allowedTemplates: Record<string, number[]>;
 }
 
 export interface User {
@@ -30,7 +25,6 @@ export interface User {
   firstName: string | null;
   lastName: string | null;
   profileUrl: string | null;
-  createdAt: string;
   plan: UserPlan | null;
   onboardingStatus: "PENDING" | "COMPLETE";
 }
@@ -60,15 +54,11 @@ export async function GET() {
           name: plans.name,
           description: plans.description,
           planType: plans.planType,
-        },
-        // Plan limits
-        planLimits: {
-          allowedTemplates: planLimits.allowedTemplates,
+          allowedTemplates: plans.allowedTemplates,
         },
       })
       .from(users)
       .leftJoin(plans, eq(users.planId, plans.id))
-      .leftJoin(planLimits, eq(plans.id, planLimits.planId))
       .where(eq(users.id, user.id))
       .limit(1);
 
@@ -85,7 +75,6 @@ export async function GET() {
       firstName: rawUser.firstName,
       lastName: rawUser.lastName,
       profileUrl: rawUser.profileUrl,
-      createdAt: rawUser.createdAt?.toISOString() || new Date().toISOString(),
       onboardingStatus: rawUser.onboardingStatus,
       plan: rawUser.plan?.id
         ? {
@@ -93,14 +82,8 @@ export async function GET() {
             name: rawUser.plan.name,
             description: rawUser.plan.description,
             planType: rawUser.plan.planType,
-            limits: rawUser.planLimits?.allowedTemplates
-              ? [
-                  {
-                    allowedTemplates: rawUser.planLimits
-                      .allowedTemplates as Record<string, number[]>,
-                  },
-                ]
-              : null,
+            allowedTemplates:
+              (rawUser.plan.allowedTemplates as Record<string, number[]>) || {},
           }
         : null,
     };
@@ -198,10 +181,9 @@ export async function PUT(request: Request) {
           name: plans.name,
           description: plans.description,
           planType: plans.planType,
-          limits: planLimits.allowedTemplates,
+          allowedTemplates: plans.allowedTemplates,
         })
         .from(plans)
-        .leftJoin(planLimits, eq(plans.id, planLimits.planId))
         .where(eq(plans.id, updatedUser.planId))
         .limit(1);
 
@@ -212,9 +194,8 @@ export async function PUT(request: Request) {
           name: plan.name,
           description: plan.description,
           planType: plan.planType,
-          limits: plan.limits
-            ? [{ allowedTemplates: plan.limits as Record<string, number[]> }]
-            : null,
+          allowedTemplates:
+            (plan.allowedTemplates as Record<string, number[]>) || {},
         };
       }
     }
@@ -226,8 +207,6 @@ export async function PUT(request: Request) {
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       profileUrl: updatedUser.profileUrl,
-      createdAt:
-        updatedUser.createdAt?.toISOString() || new Date().toISOString(),
       onboardingStatus: updatedUser.onboardingStatus,
       plan: planData,
     };

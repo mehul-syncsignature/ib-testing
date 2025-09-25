@@ -153,10 +153,18 @@ const BrandControls: React.FC = () => {
       ...(brand.id ? { id: brand.id } : {}),
       name: brand.name.trim(),
       config: brand.config,
-      social_links: brand.socialLinks,
-      brand_images: brand.brandImages,
-      info_questions: brand.infoQuestions,
-      brand_mark: { ...brand.brandMark },
+      socialLinks: brand.socialLinks || {},
+      brandImages: brand.brandImages || [],
+      infoQuestions: brand.infoQuestions || {},
+      brandMark: {
+        name: brand.brandMark?.name || "Your Name",
+        socialHandle: brand.brandMark?.socialHandle || "@yourhandle",
+        website: brand.brandMark?.website || "",
+        logoUrl: brand.brandMark?.logoUrl || "",
+        headshotUrl: brand.brandMark?.headshotUrl || "",
+        companyName: brand.brandMark?.companyName || "",
+        headshotGradient: brand.brandMark?.headshotGradient || "solid-primary",
+      },
     };
 
     try {
@@ -224,7 +232,7 @@ const BrandControls: React.FC = () => {
               <Input
                 id="brand-name"
                 type="text"
-                value={brand.brandMark.name}
+                value={brand.brandMark?.name || ""}
                 onChange={(e) =>
                   setBrandMark({ ...brand.brandMark, name: e.target.value })
                 }
@@ -242,7 +250,7 @@ const BrandControls: React.FC = () => {
               <Input
                 id="brand-name"
                 type="text"
-                value={brand.brandMark.socialHandle}
+                value={brand.brandMark?.socialHandle || ""}
                 onChange={(e) =>
                   setBrandMark({
                     ...brand.brandMark,

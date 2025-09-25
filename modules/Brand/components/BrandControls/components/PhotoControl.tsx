@@ -53,7 +53,6 @@ const PhotoControl = () => {
       headshotGradient: nextGradientType,
     });
   };
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -71,11 +70,11 @@ const PhotoControl = () => {
         </Button>
       </div>
 
-      {brandMark.headshotUrl && dataConfig.imageUrl ? (
+      {brandMark.headshotUrl || brandMark.headshotUrl  === "" ? (
         <ImageViewer
-          imageUrl={brandMark.headshotUrl || dataConfig.imageUrl}
+          imageUrl={brandMark.headshotUrl != "" ? brandMark.headshotUrl : "https://assets.dev.instantbranding.ai/dummy.png"}
           onRemove={() => {
-            setBrandMark({ ...brandMark, headshotUrl: "" });
+            setBrandMark({ ...brandMark, headshotUrl: undefined });
             setDataConfig({
               ...dataConfig,
               imageUrl: "https://assets.dev.instantbranding.ai/dummy.png",

@@ -7,7 +7,7 @@ import { FormFieldWrapper } from "../ui/FormFieldWrapper";
 import { RichTextField } from "../form-fields/RichTextField";
 import { SimpleTextField } from "../form-fields/SimpleTextField";
 import { ImageUploadField } from "../form-fields/ImageUploadField";
-import { useUnifiedDataConfig } from "@/hooks/useUnifiedDataConfig";
+import { useUnifiedDataConfig } from "@/hooks/unifiedDataConfig";
 import { templateData } from "@/common/constants/template-data";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { Slider } from "@/components/ui/slider";

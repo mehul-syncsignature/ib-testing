@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Form } from "@/components/ui/form";
 import SideBar from "@/components/SideBar";
 import { TextFieldsSection } from "./components/sections/TextFieldsSection";
-import { useUnifiedDataConfig } from "@/hooks/useUnifiedDataConfig";
+import { useUnifiedDataConfig } from "@/hooks/unifiedDataConfig";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {

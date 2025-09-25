@@ -4,26 +4,26 @@ import { useState } from "react";
 import { Brand } from "@/contexts/BrandContext/types";
 import useApi from "@/lib/api";
 import { useBrandContext } from "@/contexts/BrandContext";
-import { set, omit } from "lodash";
+import { omit } from "lodash";
 
 // Type definitions matching the database structure
 export interface CreateBrandRequest {
   id?: string; // Optional ID for updates
   name: string;
   config: Brand["config"];
-  social_links?: Brand["socialLinks"];
-  brand_images?: Brand["brandImages"];
-  info_questions?: Brand["infoQuestions"];
-  brand_mark?: Brand["brandMark"];
+  socialLinks?: Brand["socialLinks"];
+  brandImages?: Brand["brandImages"];
+  infoQuestions?: Brand["infoQuestions"];
+  brandMark?: Brand["brandMark"];
 }
 
 export interface UpdateBrandRequest {
   name?: string;
   config?: Brand["config"];
-  social_links?: Brand["socialLinks"];
-  brand_images?: Brand["brandImages"];
-  info_questions?: Brand["infoQuestions"];
-  brand_mark?: Brand["brandMark"];
+  socialLinks?: Brand["socialLinks"];
+  brandImages?: Brand["brandImages"];
+  infoQuestions?: Brand["infoQuestions"];
+  brandMark?: Brand["brandMark"];
 }
 
 export const useFetchBrands = () => {
@@ -40,10 +40,27 @@ export const useFetchBrands = () => {
       const response = await api.get("/brands");
       const brandsData = response.data || [];
 
-      // Omit server-only fields from each brand
-      const cleanedBrands = brandsData.map((brand: Brand) =>
-        omit(brand, ["userId", "updatedAt", "createdAt"])
-      );
+      // Omit server-only fields from each brand and ensure brandMark is properly initialized
+      const cleanedBrands = brandsData.map((brand: Brand) => {
+        const cleanedBrand = omit(brand, [
+          "userId",
+          "updatedAt",
+          "createdAt",
+        ]) as Brand;
+        return {
+          ...cleanedBrand,
+          brandMark: {
+            name: cleanedBrand.brandMark?.name || "",
+            socialHandle: cleanedBrand.brandMark?.socialHandle || "",
+            companyName: cleanedBrand.brandMark?.companyName || "",
+            website: cleanedBrand.brandMark?.website || "",
+            logoUrl: cleanedBrand.brandMark?.logoUrl || "",
+            headshotUrl: cleanedBrand.brandMark?.headshotUrl || "",
+            headshotGradient:
+              cleanedBrand.brandMark?.headshotGradient || "solid-primary",
+          },
+        };
+      });
       setBrands(cleanedBrands);
       if (cleanedBrands.length > 0) {
         setBrand(cleanedBrands[0]);
@@ -80,15 +97,29 @@ export const useFetchBrand = () => {
       const response = await api.get(`/brands/${brandId}`);
       const brandData = response.data;
 
-      // Omit server-only fields
+      // Omit server-only fields and ensure brandMark is properly initialized
       const cleanedBrand = omit(brandData, [
         "userId",
         "updatedAt",
         "createdAt",
       ]) as Brand;
 
-      setBrand(cleanedBrand);
-      return cleanedBrand;
+      const brandWithDefaults = {
+        ...cleanedBrand,
+        brandMark: {
+          name: cleanedBrand.brandMark?.name || "",
+          socialHandle: cleanedBrand.brandMark?.socialHandle || "",
+          website: cleanedBrand.brandMark?.website || "",
+          logoUrl: cleanedBrand.brandMark?.logoUrl || "",
+          headshotUrl: cleanedBrand.brandMark?.headshotUrl || "",
+          companyName: cleanedBrand.brandMark?.companyName || "",
+          headshotGradient:
+            cleanedBrand.brandMark?.headshotGradient || "solid-primary",
+        },
+      };
+
+      setBrand(brandWithDefaults);
+      return brandWithDefaults;
     } catch (err) {
       const errorObj =
         err instanceof Error ? err : new Error("Failed to fetch brand");
@@ -114,21 +145,21 @@ export const useUpsertBrand = () => {
     setHookError(null);
 
     try {
-      const headshotUrlCopy = brandData.brand_mark?.headshotUrl;
+      const headshotUrlCopy = brandData.brandMark?.headshotUrl;
 
       const newBrand = {
         ...brandData,
       };
 
-      // Convert camelCase to snake_case for API
+      // API payload using camelCase
       const apiPayload = {
         ...(newBrand.id ? { id: newBrand.id } : {}), // Include ID if present
         name: newBrand.name,
         config: newBrand.config,
-        social_links: newBrand.social_links,
-        brand_images: newBrand.brand_images,
-        info_questions: newBrand.info_questions,
-        brand_mark: newBrand.brand_mark,
+        socialLinks: newBrand.socialLinks,
+        brandImages: newBrand.brandImages,
+        infoQuestions: newBrand.infoQuestions,
+        brandMark: newBrand.brandMark,
       };
 
       const response = await api.post("/brands/upsert-brand", apiPayload);
@@ -140,11 +171,22 @@ export const useUpsertBrand = () => {
         "updatedAt",
         "createdAt",
       ]) as Brand;
-      const transformedBrand = set(
-        cleanedData,
-        "brandMark.headshotUrl",
-        headshotUrlCopy
-      );
+
+      // Ensure brandMark has all required properties with defaults
+      const transformedBrand = {
+        ...cleanedData,
+        brandMark: {
+          name: cleanedData.brandMark?.name || "",
+          socialHandle: cleanedData.brandMark?.socialHandle || "",
+          website: cleanedData.brandMark?.website || "",
+          logoUrl: cleanedData.brandMark?.logoUrl || "",
+          companyName: cleanedData.brandMark?.companyName || "",
+          headshotUrl:
+            headshotUrlCopy || cleanedData.brandMark?.headshotUrl || "",
+          headshotGradient:
+            cleanedData.brandMark?.headshotGradient || "solid-primary",
+        },
+      };
 
       // Update the current brand
       setBrand(transformedBrand);

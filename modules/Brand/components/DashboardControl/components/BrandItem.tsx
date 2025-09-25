@@ -74,19 +74,15 @@ const BrandItem: React.FC<BrandItemProps> = ({
       />
       <div
         className={`flex items-center justify-between p-0.5 rounded-lg cursor-pointer ${
-          isSelected ? "border-2 border-primary shadow-sm bg-[#F1F3F3]" : ""
+          isSelected ? "bg-[#D9F4F4]" : ""
         }`}
         onClick={handleClick}
       >
         <div
-          className={`flex items-center justify-between px-3 py-1.5 rounded-lg w-full cursor-pointer ${
-            isSelected
-              ? "border-1 border-[#E8EAEA]"
-              : "border-1 bg-[#F1F3F3] border-transparent"
-          }`}
+          className={`flex items-center justify-between px-3 py-1.5 rounded-lg w-full cursor-pointer`}
         >
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 rounded-md overflow-hidden">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex h-8 w-8 rounded-md overflow-hidden flex-shrink-0">
               <div
                 className="w-1/3 h-full"
                 style={{ backgroundColor: colors?.secondaryColor }}
@@ -100,7 +96,9 @@ const BrandItem: React.FC<BrandItemProps> = ({
                 style={{ backgroundColor: colors?.highlightColor }}
               />
             </div>
-            <span className={`text-[0.80rem] font-light text-gray-500`}>
+            <span
+              className={`text-[0.80rem] font-medium text-[#343B3F] truncate min-w-0`}
+            >
               {name}
             </span>
           </div>
@@ -113,7 +111,7 @@ const BrandItem: React.FC<BrandItemProps> = ({
                   title={`Edit ${name}`}
                 >
                   <Pencil
-                    className={`w-4 h-4  text-gray-400 hover:text-primary`}
+                    className={`w-4 h-4  text-[#343B3F] hover:text-primary`}
                   />
                 </button>
                 {brands.length !== 1 && (
@@ -123,7 +121,7 @@ const BrandItem: React.FC<BrandItemProps> = ({
                     title={`Edit ${name}`}
                   >
                     <Trash
-                      className={`w-4 h-4 text-gray-400 hover:text-red-600`}
+                      className={`w-4 h-4 text-[#343B3F] hover:text-red-600`}
                     />
                   </button>
                 )}

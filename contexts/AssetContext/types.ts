@@ -8,6 +8,21 @@ import { textimgPostStyles } from "@/components/instant-branding/textimg-post/te
 import { mockupPostStyles } from "@/components/instant-branding/mockup-post/mockup-post-styles";
 import { socialCarouselStyles } from "@/components/instant-branding/social-carousel/social-carousel-styles";
 import { Position } from "@/types";
+import { Post } from "@/hooks/post";
+
+export type CarouselSlideForStorage = Omit<CarouselSlide, "id" | "templateId">;
+
+export interface Design {
+  id: string;
+  brandId: string;
+  userId: string;
+  assetType: string;
+  styleId: number;
+  templateId: number;
+  data: Data | CarouselSlideForStorage[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface StyleConfigs {
   backgroundBackdropConfig?: {
@@ -105,6 +120,10 @@ export interface AssetState {
   // Carousel state
   currentSlideIndex: number;
   slides: CarouselSlide[];
+  // Designs state
+  designs: Design[];
+  // Post state
+  posts: Post[];
 }
 
 export interface AssetContextType {
@@ -121,6 +140,10 @@ export interface AssetContextType {
   setCurrentSlideIndex: (index: number) => void;
   setSlides: (slides: CarouselSlide[]) => void;
   setSlideData: (slideIndex: number, data: Partial<Data>) => void;
+  // Design actions
+  setDesigns: (designs: Design[]) => void;
+  // Post actions
+  setPosts: (posts: Post[]) => void;
 }
 
 export { ASSET_CONFIG };

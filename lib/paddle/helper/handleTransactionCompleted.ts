@@ -13,16 +13,13 @@ export async function handleTransactionCompleted(
     const user = await findUserInDatabase(data);
 
     if (user) {
-      const planId = data.items?.[0]?.price?.custom_data?.planId;
+      const planId = Number(data.items?.[0]?.price?.custom_data?.planId);
 
       if (!planId) {
         throw new Error("planId not found in price custom_data");
       }
 
-      await serverDb
-        .update(users)
-        .set({ planId })
-        .where(eq(users.id, user.id));
+      await serverDb.update(users).set({ planId }).where(eq(users.id, user.id));
 
       if (process.env.ENVIRONMENT === "development") {
         console.log(

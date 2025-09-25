@@ -8,6 +8,48 @@
       "when": 1758114652476,
       "tag": "0000_robust_the_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758618403621,
+      "tag": "0001_warm_micromax",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758619254753,
+      "tag": "0002_black_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758621224779,
+      "tag": "0003_light_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1758624454301,
+      "tag": "0004_strong_the_fallen",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1758800263972,
+      "tag": "0005_fine_jackal",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1758802012240,
+      "tag": "0006_numerous_gorilla_man",
+      "breakpoints": true
     }
   ]
 }

@@ -4,7 +4,7 @@
 // import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useUnifiedDataConfig } from "@/hooks/useUnifiedDataConfig";
+import { useUnifiedDataConfig } from "@/hooks/unifiedDataConfig";
 import { useBrandContext } from "@/contexts/BrandContext";
 import { User } from "lucide-react";
 
@@ -43,6 +43,7 @@ export const BrandMarkSection = () => {
   const availableFields = {
     name: !!brand.brandMark.name?.trim(),
     socialHandle: !!brand.brandMark.socialHandle?.trim(),
+    companyName: !!brand.brandMark.companyName?.trim(),
     website: !!brand.brandMark.website?.trim(),
     logo: !!brand.brandMark.logoUrl?.trim(),
     headshot: !!brand.brandMark.headshotUrl?.trim(),

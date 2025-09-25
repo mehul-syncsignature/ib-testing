@@ -1,35 +1,17 @@
 import { auth } from "@/auth";
 import { serverDb } from "@/lib/drizzle/server";
-import { users, plans, planLimits } from "@/lib/drizzle/schema";
+import { users, plans } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
-
-export interface AuthenticatedUser {
-  id: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-  profileUrl: string | null;
-  planId: string | null;
-  onboardingStatus: "PENDING" | "COMPLETE";
-  plan?: {
-    id: string;
-    name: string;
-    description: string | null;
-    planType: string;
-    limits: Array<{
-      allowedTemplates: Record<string, number[]>;
-    }> | null;
-  } | null;
-}
+import { User } from "@/app/api/user/route";
 
 /**
  * Get the authenticated user from the session and database
  * This function should be used in API routes to get user data
  */
-export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+export async function getAuthenticatedUser(): Promise<User | null> {
   try {
     const session = await auth();
-    
+
     if (!session?.user?.id) {
       return null;
     }
@@ -44,22 +26,17 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
         profileUrl: users.profileUrl,
         planId: users.planId,
         onboardingStatus: users.onboardingStatus,
-        createdAt: users.createdAt,
         // Plan data
         plan: {
           id: plans.id,
           name: plans.name,
           description: plans.description,
           planType: plans.planType,
-        },
-        // Plan limits
-        planLimits: {
-          allowedTemplates: planLimits.allowedTemplates,
+          allowedTemplates: plans.allowedTemplates,
         },
       })
       .from(users)
       .leftJoin(plans, eq(users.planId, plans.id))
-      .leftJoin(planLimits, eq(plans.id, planLimits.planId))
       .where(eq(users.id, session.user.id))
       .limit(1);
 
@@ -75,7 +52,6 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
       firstName: user.firstName,
       lastName: user.lastName,
       profileUrl: user.profileUrl,
-      planId: user.planId,
       onboardingStatus: user.onboardingStatus,
       plan: user.plan?.id
         ? {
@@ -83,9 +59,8 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
             name: user.plan.name,
             description: user.plan.description,
             planType: user.plan.planType,
-            limits: user.planLimits?.allowedTemplates
-              ? [{ allowedTemplates: user.planLimits.allowedTemplates as Record<string, number[]> }]
-              : null,
+            allowedTemplates:
+              (user.plan.allowedTemplates as Record<string, number[]>) || {},
           }
         : null,
     };
@@ -99,13 +74,13 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
  * Authentication middleware for API routes
  * Returns the authenticated user or throws an error
  */
-export async function requireAuth(): Promise<AuthenticatedUser> {
+export async function requireAuth(): Promise<User> {
   const user = await getAuthenticatedUser();
-  
+
   if (!user) {
     throw new Error("Authentication required");
   }
-  
+
   return user;
 }
 
@@ -119,7 +94,7 @@ export function handleAuthError(error: unknown) {
       { status: 401 }
     );
   }
-  
+
   console.error("API error:", error);
   return Response.json(
     { success: false, error: "Internal server error" },

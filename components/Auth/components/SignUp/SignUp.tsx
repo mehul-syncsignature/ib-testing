@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import SignUpFormView from "./components/SignUpFormView";
 import BenefitsView from "./components/BenefitsView";
 import { useAppContext } from "@/contexts/AppContext";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { usePaddleCheckout } from "@/hooks/paddleCheckout";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 

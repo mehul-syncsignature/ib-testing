@@ -10,7 +10,7 @@ interface BrandMarkProps {
   // Use a 'type' prop to decide what to render
   type?: "individual" | "business";
   config?: StyleConfigs;
-  data: Data;
+  data?: Data;
   classname?: string;
   customStyles?: any;
 }
@@ -59,8 +59,11 @@ const BrandMark: React.FC<BrandMarkProps> = ({
               className="text-left"
               style={{
                 fontFamily: secondaryFont,
-                fontSize:
-                  customStyles.nameFontSize || socialHandle ? "1.8rem" : "2rem",
+                fontSize: customStyles.nameFontSize
+                  ? customStyles.nameFontSize
+                  : socialHandle
+                  ? "1.8rem"
+                  : "2rem",
                 color: textColor,
                 fontWeight: "600",
                 lineHeight: 1.1,
@@ -75,8 +78,12 @@ const BrandMark: React.FC<BrandMarkProps> = ({
               <BadgeCheck
                 fill="#1DA1F2"
                 stroke="#FFFFFF"
-                width="2rem"
-                height="2rem"
+                width={
+                  customStyles.nameFontSize ? customStyles.nameFontSize : "2rem"
+                }
+                height={
+                  customStyles.nameFontSize ? customStyles.nameFontSize : "2rem"
+                }
               ></BadgeCheck>
             </div>
           )}
@@ -85,8 +92,11 @@ const BrandMark: React.FC<BrandMarkProps> = ({
               className="text-left"
               style={{
                 fontFamily: secondaryFont,
-                fontSize:
-                  customStyles.socialhandleFontSize || name ? "1.8rem" : "2rem",
+                fontSize: customStyles.socialhandleFontSize
+                  ? customStyles.socialhandleFontSize
+                  : name
+                  ? "1.8rem"
+                  : "2rem",
                 color: textColor,
                 lineHeight: 1.1,
                 ...customStyles,

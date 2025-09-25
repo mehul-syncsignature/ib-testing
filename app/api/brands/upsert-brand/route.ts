@@ -11,10 +11,28 @@ const brandSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, "Brand name is required"), // Accept 'name' from frontend
   config: z.record(z.any()).default({}),
-  social_links: z.record(z.any()).default({}), // Accept snake_case from frontend
-  brand_images: z.array(z.string()).default([]), // Accept snake_case from frontend
-  info_questions: z.record(z.any()).default({}), // Accept snake_case from frontend
-  brand_mark: z.record(z.any()).default({}), // Accept snake_case from frontend
+  socialLinks: z.record(z.any()).default({}), // Accept camelCase from frontend
+  brandImages: z.array(z.string()).default([]), // Accept camelCase from frontend
+  infoQuestions: z.record(z.any()).default({}), // Accept camelCase from frontend
+  brandMark: z
+    .object({
+      name: z.string().default(""),
+      socialHandle: z.string().default(""),
+      website: z.string().default(""),
+      logoUrl: z.string().default(""),
+      headshotUrl: z.string().default(""),
+      companyName: z.string().default(""),
+      headshotGradient: z.string().default("solid-primary"),
+    })
+    .default({
+      name: "",
+      socialHandle: "",
+      website: "",
+      logoUrl: "",
+      headshotUrl: "",
+      headshotGradient: "solid-primary",
+      companyName: "",
+    }), // Accept camelCase from frontend
 });
 
 export async function POST(request: NextRequest) {
@@ -36,10 +54,10 @@ export async function POST(request: NextRequest) {
         .set({
           name: validatedData.name, // Use 'name' consistently
           config: validatedData.config,
-          socialLinks: validatedData.social_links, // Map from snake_case
-          brandImages: validatedData.brand_images, // Map from snake_case
-          infoQuestions: validatedData.info_questions, // Map from snake_case
-          brandMark: validatedData.brand_mark, // Map from snake_case
+          socialLinks: validatedData.socialLinks,
+          brandImages: validatedData.brandImages,
+          infoQuestions: validatedData.infoQuestions,
+          brandMark: validatedData.brandMark,
           updatedAt: new Date(),
         })
         .where(
@@ -66,10 +84,10 @@ export async function POST(request: NextRequest) {
         .values({
           name: validatedData.name, // Use 'name' consistently
           config: validatedData.config,
-          socialLinks: validatedData.social_links, // Map from snake_case
-          brandImages: validatedData.brand_images, // Map from snake_case
-          infoQuestions: validatedData.info_questions, // Map from snake_case
-          brandMark: validatedData.brand_mark, // Map from snake_case
+          socialLinks: validatedData.socialLinks,
+          brandImages: validatedData.brandImages,
+          infoQuestions: validatedData.infoQuestions,
+          brandMark: validatedData.brandMark,
           userId: user.id,
         })
         .returning();

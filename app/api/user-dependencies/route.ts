@@ -47,13 +47,13 @@ export async function POST(request: NextRequest) {
       id: createdBrand.id,
       name: createdBrand.name, // Use 'name' consistently
       config: createdBrand.config,
-      social_links: createdBrand.socialLinks, // Transform to snake_case for API consistency
-      brand_images: createdBrand.brandImages, 
-      info_questions: createdBrand.infoQuestions,
-      brand_mark: createdBrand.brandMark,
-      user_id: createdBrand.userId, // Transform to snake_case for API consistency
-      created_at: createdBrand.createdAt,
-      updated_at: createdBrand.updatedAt,
+      socialLinks: createdBrand.socialLinks,
+      brandImages: createdBrand.brandImages, 
+      infoQuestions: createdBrand.infoQuestions,
+      brandMark: createdBrand.brandMark,
+      userId: createdBrand.userId,
+      createdAt: createdBrand.createdAt,
+      updatedAt: createdBrand.updatedAt,
     };
 
     return NextResponse.json({

@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Form, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAIContentGeneration } from "@/hooks/useAIContentGeneration";
+import { useAIContentGeneration } from "@/hooks/aiContentGeneration";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { Loader2, Sparkles, X } from "lucide-react";
 

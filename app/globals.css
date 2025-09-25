@@ -231,3 +231,13 @@
 .scrollbar-thin-custom::-webkit-scrollbar-track:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
+.scrollbar-hide {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}

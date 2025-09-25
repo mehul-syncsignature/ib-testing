@@ -80,7 +80,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 password: hashedPassword,
                 firstName: firstName || null,
                 lastName: lastName || null,
-                planId: "1", // Default to free plan
+                planId: 1, // Default to free plan
                 onboardingStatus: "PENDING",
               })
               .returning();
@@ -128,7 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             };
           }
         } catch (error) {
-          console.error("Auth error:", error);
+          console.error(error);
           return null;
         }
       },
@@ -169,7 +169,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "credentials") {
         return true;
       }
-      
+
       // Only run this logic for OAuth providers, not credentials
       if (account?.provider === "google" && user.email && user.id) {
         try {
@@ -188,7 +188,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               firstName: user.name?.split(" ")[0] || null,
               lastName: user.name?.split(" ").slice(1).join(" ") || null,
               profileUrl: user.image || null,
-              planId: "1", // Default free plan
+              planId: 1,
               onboardingStatus: "PENDING",
             });
           } else {

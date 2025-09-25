@@ -1,4 +1,5 @@
 // contexts/AssetContext/helpers/initialState.ts
+
 import { AssetState, ASSET_CONFIG, AssetTypeKeys, Data } from "../types";
 import { fetchAwsAsset } from "@/lib/aws-s3";
 
@@ -62,4 +63,7 @@ export const initialState: AssetState = {
       },
     },
   ],
+  // Designs state
+  designs: [],
+  posts: [],
 };

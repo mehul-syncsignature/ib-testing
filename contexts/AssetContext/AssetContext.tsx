@@ -1,4 +1,5 @@
 // contexts/AssetContext/AssetContext.tsx
+
 import React, { createContext, useContext, useState } from "react";
 import {
   AssetState,
@@ -7,7 +8,9 @@ import {
   CarouselSlide,
   Style,
   Data,
+  Design,
 } from "./types";
+import { Post } from "@/hooks/post";
 import { initialState } from "./helpers/initialState";
 import { actions } from "./helpers/actions";
 
@@ -37,6 +40,13 @@ function AssetContextProvider({ children }: { children: React.ReactNode }) {
   const setSlideData = (slideIndex: number, data: Partial<Data>) =>
     actions.setSlideData(setState, slideIndex, data);
 
+  // Design action handlers
+  const setDesigns = (designs: Design[]) =>
+    actions.setDesigns(setState, designs);
+
+  // Post action handlers
+  const setPosts = (posts: Post[]) => actions.setPosts(setState, posts);
+
   const value: AssetContextType = {
     state,
 
@@ -50,6 +60,10 @@ function AssetContextProvider({ children }: { children: React.ReactNode }) {
     setCurrentSlideIndex,
     setSlides,
     setSlideData,
+    // Design setters
+    setDesigns,
+    // Post setters
+    setPosts,
   };
 
   return (

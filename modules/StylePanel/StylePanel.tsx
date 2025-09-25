@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ExportModal from "./components/ExportModal/ExportModal";
 import { Download } from "lucide-react";
@@ -14,7 +14,7 @@ import { getAssetDimensions, calculateScaleToFit } from "@/common/utils";
 import SideBar from "@/components/SideBar";
 import AuthDialog from "@/components/Auth";
 import { AuthDialogHandle } from "@/components/Auth/AuthDialog";
-// import { useCreateDesign } from "@/hooks/designs";
+import { useUpsertDesign, normalizeDesignForSave } from "@/hooks/designs";
 import { toast } from "sonner";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAssetContext } from "@/contexts/AssetContext";
@@ -28,6 +28,7 @@ const StylePanel: React.FC = () => {
   } = useBrandContext();
 
   const params = useParams();
+  const searchParams = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
   const itemContainerRef = useRef<HTMLDivElement>(null);
@@ -43,15 +44,17 @@ const StylePanel: React.FC = () => {
     state: {
       currentAssetType,
       styleId: currentStyleKey,
+      slides,
       templateId: currentTemplateId,
+      dataConfig,
     },
     setCurrentAssetType,
     setStyleId,
     setCurrentStyle, // Add setCurrentStyle
   } = useAssetContext();
 
-  // const [createDesign, { loading: savingDesign, error: savingDesignError }] =
-  //   useCreateDesign();
+  const [upsertDesign, { loading: savingDesign, error: savingDesignError }] =
+    useUpsertDesign();
 
   const authDialogRef = useRef<AuthDialogHandle>(null);
   // Get all styles for the current asset type
@@ -145,21 +148,56 @@ const StylePanel: React.FC = () => {
     return `${currentAssetType}-template-${currentTemplateId}-style-${selectedStyleKey}`;
   };
 
-  // if (savingDesignError) {
-  //   toast.error(`error saving: ${savingDesignError}`);
-  // }
-  // if (savingDesign) {
-  //   toast.info("savinggg!!");
-  // }
+  const handleSaveDesign = async () => {
+    if (!isSignedIn) {
+      authDialogRef?.current?.setAuthView("signUp");
+      authDialogRef?.current?.open();
+      return;
+    }
+
+    if (!brand?.id) {
+      toast.error("Please select or create a brand first");
+      return;
+    }
+
+    try {
+      const designId = searchParams.get("designId");
+
+      const designData = {
+        ...(designId ? { id: designId } : {}), // Include ID for updates
+        brandId: brand.id,
+        assetType: currentAssetType,
+        styleId: selectedStyleKey ?? currentStyleKey,
+        templateId: Number(currentTemplateId),
+        data: normalizeDesignForSave(currentAssetType, dataConfig, slides),
+      };
+
+      const result = await upsertDesign(designData);
+
+      if (result.action === "created") {
+        toast.success("Design saved successfully!");
+      } else {
+        toast.success("Design updated successfully!");
+      }
+    } catch (error) {
+      console.error("Save design error:", error);
+      toast.error("Failed to save design. Please try again.");
+    }
+  };
 
   const header = (
-    <div className="flex">
-      {/* <Button className="w-[50%]" onClick={handleSaveDesign}>
-        Save
-      </Button> */}
-      <Button className="w-full" onClick={handleExportClick}>
-        <p className="text-white">Export</p>
-        <Download />
+    <div className="flex gap-2 p-4">
+      <Button
+        className="flex-1"
+        variant="outline"
+        onClick={handleSaveDesign}
+        disabled={savingDesign}
+      >
+        {savingDesign ? "Saving..." : "Save"}
+      </Button>
+      <Button className="flex-1 gap-2" onClick={handleExportClick}>
+        <span>Export</span>
+        <Download size={16} />
       </Button>
     </div>
   );

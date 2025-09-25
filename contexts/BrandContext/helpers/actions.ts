@@ -25,7 +25,7 @@ export const actions = {
         },
         isDirty: true,
       };
-      
+
       return newState;
     });
   },
@@ -84,7 +84,7 @@ export const actions = {
         },
         isDirty: true,
       };
-      
+
       return newState;
     });
   },
@@ -265,7 +265,19 @@ export const actions = {
   ) => {
     setState((prev) => ({
       ...prev,
-      brand,
+      brand: {
+        ...brand,
+        brandMark: {
+          name: brand.brandMark?.name || "",
+          socialHandle: brand.brandMark?.socialHandle || "",
+          website: brand.brandMark?.website || "",
+          logoUrl: brand.brandMark?.logoUrl || "",
+          companyName: brand.brandMark?.companyName || "",
+          headshotUrl: brand.brandMark?.headshotUrl || "",
+          headshotGradient:
+            brand.brandMark?.headshotGradient || "solid-primary",
+        },
+      },
     }));
   },
 

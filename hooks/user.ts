@@ -55,7 +55,7 @@ export const useUserAccessChecks = () => {
       return false;
     }
 
-    const allowedTemplates = currentUser?.plan?.limits?.[0]?.allowedTemplates;
+    const allowedTemplates = currentUser?.plan?.allowedTemplates;
 
     if (!allowedTemplates) {
       // Fallback to free templates if no plan limits found
@@ -134,7 +134,7 @@ export const useUserDependencies = () => {
 
       if (response.success && response.data.brand) {
         const brand = set(
-          omit(response.data.brand, ["updated_at", "created_at", "userId"]),
+          omit(response.data.brand, ["updatedAt", "createdAt", "userId"]),
           "brandMark.headshotUrl",
           headshotUrlCopy
         ) as Brand;
