@@ -164,7 +164,7 @@ const PostPreview = ({
           <div className="w-1/2 items-center h-[90%]">
             <div className="w-full h-full rounded-lg bg-[#F3F5F6] p-4">
               <div className="h-full overflow-y-auto space-y-4">
-                {posts.length && (
+                {posts.length > 0 && (
                   <LinkedInPostPreview
                     content={posts[posts.length - 1]?.content || ""}
                   />
