@@ -10,28 +10,21 @@ export const routes: RouteConfig = {
   // Public routes - no authentication required
   public: [
     "/auth",
-    "/logout",
-    "/auth-redirect",
+    "/app/logout",
+    "/app/auth-redirect",
     "/api/auth/*", // NextAuth routes
     "/api/webhooks/paddle-webhook",
-    "/checkout-complete"
+    "/app/checkout-complete",
   ],
-  
+
   // Onboarding required routes - needs authentication but allows PENDING onboarding status
-  onboardingRequired: [
-    "/onboarding"
-  ],
-  
-  // Protected routes - requires COMPLETE onboarding status
-  protected: [
-    "/dashboard",
-    "/editor",
-    "/brand-setup"
-  ]
+  onboardingRequired: ["/app/onboarding"],
+
+  protected: [],
 };
 
 export const isPublicRoute = (pathname: string): boolean => {
-  return routes.public.some(route => {
+  return routes.public.some((route) => {
     if (route.endsWith("/*")) {
       return pathname.startsWith(route.slice(0, -2));
     }
@@ -40,7 +33,7 @@ export const isPublicRoute = (pathname: string): boolean => {
 };
 
 export const isOnboardingRequiredRoute = (pathname: string): boolean => {
-  return routes.onboardingRequired.some(route => {
+  return routes.onboardingRequired.some((route) => {
     if (route.endsWith("/*")) {
       return pathname.startsWith(route.slice(0, -2));
     }
@@ -49,7 +42,7 @@ export const isOnboardingRequiredRoute = (pathname: string): boolean => {
 };
 
 export const isProtectedRoute = (pathname: string): boolean => {
-  return routes.protected.some(route => {
+  return routes.protected.some((route) => {
     if (route.endsWith("/*")) {
       return pathname.startsWith(route.slice(0, -2));
     }

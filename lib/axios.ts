@@ -91,34 +91,6 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // Handle auth errors on client side
-    if (typeof window !== "undefined" && error.response?.status === 401) {
-      // Don't redirect if we're on auth pages (login/signup attempts should show errors inline)
-      const isAuthPage = window.location.pathname.includes("/auth") || 
-                        window.location.pathname === "/" ||
-                        error.config?.url?.includes("/auth/login") ||
-                        error.config?.url?.includes("/auth/signup");
-      
-      if (!isAuthPage) {
-        try {
-          // Use NextAuth signOut
-          const { signOut } = await import("next-auth/react");
-          await signOut({ redirect: false });
-
-          // Redirect to home if not already there
-          if (window.location.pathname !== "/") {
-            window.location.href = "/";
-          }
-        } catch (signOutError) {
-          if (process.env.ENVIRONMENT === "development") {
-            console.error("Error during sign out:", signOutError);
-          }
-          // Fallback: just redirect
-          window.location.href = "/";
-        }
-      }
-    }
-
     // Handle network errors
     if (!error.response && process.env.ENVIRONMENT === "development") {
       console.error("Network error:", error.message);

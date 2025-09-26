@@ -18,6 +18,7 @@ This document provides a detailed breakdown of the Instant Branding web applicat
 ## 2. Directory and File Functionality Map
 
 ### 📂 `app/` - Routing & Core Pages
+
 This directory uses the Next.js App Router. Each subdirectory represents a URL route.
 
 - **`app/layout.tsx`**: The root layout for the entire application.
@@ -41,7 +42,7 @@ This directory uses the Next.js App Router. Each subdirectory represents a URL r
     - `PUT /api/user`: Updates the current user's profile information.
 - **`app/auth/`**: Frontend pages for the authentication flow (login, reset password).
 - **`app/brand-setup/`**: The multi-step UI for users to set up their initial brand profile.
-- **`app/dashboard/`**: The main dashboard view for logged-in users, containing the `AssetBentoContainer`.
+- **`app/app/design-templates/social-banner/`**: The main dashboard view for logged-in users, containing the `AssetBentoContainer`.
 - **`app/editor/[type]/`**: The core design editor. The `[type]` is a dynamic parameter for the type of template being edited (e.g., `social-post`). This page is composed of the `Canvas`, `ControlPanel`, and `StylePanel` modules.
 - **`app/onboarding/`**: The user onboarding flow after signing up.
 
@@ -57,6 +58,7 @@ This directory uses the Next.js App Router. Each subdirectory represents a URL r
 - **`components/SideBar/`**: The main navigation sidebar for the application. It includes user authentication status, user menu, and navigation links.
 
 ### 📂 `modules/` - Feature Modules
+
 These directories group components and logic for a major feature area, often composing smaller components from `components/`.
 
 - **`modules/Canvas/`**: Manages the main design canvas in the editor. It dynamically renders the selected component based on the `type` parameter and applies the current brand and style context.
