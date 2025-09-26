@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { ASSET_CONFIG, AssetTypeKeys } from "@/contexts/AssetContext/types";
 import { Brand } from "@/contexts/BrandContext/types";
 import { useEffect, useRef } from "react";
 
@@ -169,3 +170,7 @@ export const getSlidePosition = (
   return "middle";
 };
 
+// Validate if the type is a valid asset type
+export const isValidAssetType = (type: string): type is AssetTypeKeys => {
+  return type in ASSET_CONFIG;
+};
