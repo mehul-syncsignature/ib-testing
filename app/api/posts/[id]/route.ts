@@ -40,14 +40,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
     const user = await requireAuth();
-    const { id } = params;
-    const body = await request.json() as {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    const body = (await request.json()) as {
       content?: string;
       imageUrl?: string;
       pdfUrl?: string;
