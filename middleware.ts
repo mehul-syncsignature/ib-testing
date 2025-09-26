@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -15,11 +16,28 @@ export default auth((req) => {
     return;
   }
 
+  // Handle API routes that require authentication
+  if (pathname.startsWith("/api/")) {
+    if (!isLoggedIn) {
+      // Return 401 for unauthorized API requests
+      return new NextResponse(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        {
+          status: 401,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+    return;
+  }
+
   // Check if it's a public route
   if (publicRoutes.includes(pathname)) {
     // If user is authenticated and on auth page, redirect to dashboard
     if (isLoggedIn && pathname === "/auth") {
-      return Response.redirect(new URL("/dashboard", req.nextUrl.origin));
+      return Response.redirect(new URL("/app/design-templates/social-banner", req.nextUrl.origin));
     }
     // If user is not authenticated and on root, redirect to auth
     if (!isLoggedIn && pathname === "/") {
@@ -27,7 +45,7 @@ export default auth((req) => {
     }
     // If user is authenticated and on root, redirect to dashboard
     if (isLoggedIn && pathname === "/") {
-      return Response.redirect(new URL("/dashboard", req.nextUrl.origin));
+      return Response.redirect(new URL("/app/design-templates/social-banner", req.nextUrl.origin));
     }
     return;
   }

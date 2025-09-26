@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { loadBrandFonts } from "@/lib/fonts";
 import CreateBrandDialog, {
   CreateBrandDialogHandle,
-} from "@/modules/Brand/components/DashboardControl/components/CreateBrandDialog";
+} from "@/components/DashboardControl/components/CreateBrandDialog";
 import { defaultBrand } from "@/contexts/BrandContext/helpers/initialState";
 import { ChevronUp, LogOut } from "lucide-react";
 import { useUpsertBrand } from "@/hooks/brand";
@@ -64,7 +64,7 @@ const SideBar: React.FC<SideBarProps> = ({
 
   // Initialize with first brand if no brand is selected
   useEffect(() => {
-    router.prefetch("/brand-setup");
+    router.prefetch("/app/brand-setup");
     if (brands && brands.length > 0 && !brand?.id) {
       const firstBrand = brands[0];
       setBrand(firstBrand);
@@ -152,7 +152,7 @@ const SideBar: React.FC<SideBarProps> = ({
 
       toast.success("Brand created successfully!");
 
-      router.push(`/brand-setup`);
+      router.push(`/app/brand-setup`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -176,7 +176,11 @@ const SideBar: React.FC<SideBarProps> = ({
             {HeaderContent ? (
               HeaderContent
             ) : (
-              <Link href="/" className="cursor-pointer" prefetch={true}>
+              <Link
+                href="/app/design-templates/social-banner"
+                className="cursor-pointer"
+                prefetch={true}
+              >
                 <Image
                   src={fetchAwsAsset("instantBranding", "png")}
                   width={100}

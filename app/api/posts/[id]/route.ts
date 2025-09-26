@@ -39,3 +39,60 @@ export async function GET(request: NextRequest) {
     return handleAuthError(error);
   }
 }
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await requireAuth();
+    const { id } = params;
+    const body = await request.json() as {
+      content?: string;
+      imageUrl?: string;
+      pdfUrl?: string;
+      designId?: string;
+    };
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Post ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Check if post exists and belongs to user
+    const existingPost = await serverDb
+      .select()
+      .from(posts)
+      .where(and(eq(posts.id, id), eq(posts.userId, user.id)))
+      .limit(1);
+
+    if (!existingPost.length) {
+      return NextResponse.json(
+        { success: false, error: "Post not found" },
+        { status: 404 }
+      );
+    }
+
+    // Update the post
+    const updatedPost = await serverDb
+      .update(posts)
+      .set({
+        content: body.content,
+        imageUrl: body.imageUrl,
+        pdfUrl: body.pdfUrl,
+        designId: body.designId,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(posts.id, id), eq(posts.userId, user.id)))
+      .returning();
+
+    return NextResponse.json({
+      success: true,
+      data: updatedPost[0],
+    });
+  } catch (error) {
+    return handleAuthError(error);
+  }
+}

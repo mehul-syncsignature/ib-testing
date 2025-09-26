@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { AssetTypeKeys } from "@/contexts/AssetContext/types";
-import { getAllStylesByType } from "../Brand/components/BrandSection/utils";
+import { getAllStylesByType } from "../../app/app/(main)/design-templates/utils";
 import { useBrandContext } from "@/contexts/BrandContext";
 
 const StylePanel: React.FC = () => {

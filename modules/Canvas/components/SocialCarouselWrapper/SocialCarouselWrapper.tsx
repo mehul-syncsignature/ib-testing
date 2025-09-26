@@ -219,7 +219,7 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
       <div className="h-[80%] flex items-center justify-center bg-[#FCFCFC] rounded-xl">
         <div
           style={{
-            transform: scale < 1 ? `scale(${scale})` : "none",
+            transform: scale < 1 ? `scale(${scale - .04})` : "none",
             transformOrigin: "center center",
           }}
         >

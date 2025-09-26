@@ -91,7 +91,7 @@ const SignIn = ({ handleSetView }: SignInProps) => {
     try {
       await signIn("google", {
         redirect: true,
-        callbackUrl: "/auth-redirect",
+        callbackUrl: "/app/auth-redirect",
       });
 
       // Don't set loading to false here if redirect is true, as the page will redirect
@@ -114,7 +114,7 @@ const SignIn = ({ handleSetView }: SignInProps) => {
         email: data.email,
         password: data.password,
         redirect: false,
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app/design-templates/social-banner",
       });
 
       if (result?.error) {

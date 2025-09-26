@@ -9,10 +9,10 @@ import { useAppContext } from "@/contexts/AppContext";
 
 import { loadBrandFonts } from "@/lib/fonts";
 import { Brand } from "@/contexts/BrandContext/types";
-import { fontOptions } from "@/modules/Brand/components/BrandControls/components/FontFamilyDropdown";
-import ColorControl from "@/modules/Brand/components/BrandControls/components/ColorControl";
-import FontControl from "@/modules/Brand/components/BrandControls/components/FontControl";
-import PhotoControl from "@/modules/Brand/components/BrandControls/components/PhotoControl";
+import { fontOptions } from "@/app/app/brand-setup/BrandControls/components/FontFamilyDropdown";
+import ColorControl from "@/app/app/brand-setup/BrandControls/components/ColorControl";
+import FontControl from "@/app/app/brand-setup/BrandControls/components/FontControl";
+import PhotoControl from "@/app/app/brand-setup/BrandControls/components/PhotoControl";
 
 const BrandControls: React.FC = () => {
   const {} = useAppContext();

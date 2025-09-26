@@ -32,7 +32,7 @@ const PublicSideBar: React.FC<PublicSideBarProps> = ({
 
   const handleSignUp = () => {
     if (isSignedIn) {
-      window.location.href = "/dashboard";
+      window.location.href = "/app/design-templates/social-banner";
     } else {
       posthog?.capture("download_brand_assets_clicked", {
         location: "Publicsidebar",
@@ -48,8 +48,6 @@ const PublicSideBar: React.FC<PublicSideBarProps> = ({
 
   return (
     <>
-      
-
       <div className="flex flex-col gap-1 h-full">
         <div className="h-[68px] bg-[#FCFCFC] rounded-[16px] flex items-center justify-between">
           <div className="w-full p-3">

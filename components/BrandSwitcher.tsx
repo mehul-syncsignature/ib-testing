@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import BrandItem from "@/modules/Brand/components/DashboardControl/components/BrandItem";
+import BrandItem from "@/components/DashboardControl/components/BrandItem";
 import { Brand } from "@/contexts/BrandContext/types";
 
 interface BrandSwitcherProps {

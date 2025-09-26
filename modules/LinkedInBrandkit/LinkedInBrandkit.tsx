@@ -22,7 +22,7 @@ const LinkedInPageContent = () => {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (isSignedIn) {
-      router.push("/dashboard");
+      router.push("/app/design-templates/social-banner");
     }
   }, [isSignedIn, router]);
 

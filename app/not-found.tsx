@@ -31,7 +31,7 @@ export default function NotFound() {
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/"
+              href="/app/design-templates/social-banner"
               className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               <svg

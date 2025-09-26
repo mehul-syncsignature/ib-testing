@@ -72,7 +72,7 @@ export const useNextAuthLogic = ({
               userData.onboardingStatus === "COMPLETE" &&
               currentPath === "/onboarding"
             ) {
-              router.push("/dashboard");
+              router.push("/app/design-templates/social-banner");
               return;
             }
 
@@ -157,7 +157,7 @@ export const useNextAuthLogic = ({
             userData.onboardingStatus === "COMPLETE" &&
             currentPath === "/onboarding"
           ) {
-            router.push("/dashboard");
+            router.push("/app/design-templates/social-banner");
             return;
           }
 

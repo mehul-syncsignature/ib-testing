@@ -51,7 +51,7 @@ const SignUp = ({
     try {
       await signIn("google", {
         redirect: true,
-        callbackUrl: "/auth-redirect",
+        callbackUrl: "/app/auth-redirect",
       });
 
       // Don't set loading to false here if redirect is true, as the page will redirect
@@ -119,7 +119,7 @@ const SignUp = ({
         }
 
         // Redirect to onboarding for all users
-        window.location.href = "/onboarding";
+        window.location.href = "/app/onboarding";
       }
     } catch (error: unknown) {
       const errorMessage =
