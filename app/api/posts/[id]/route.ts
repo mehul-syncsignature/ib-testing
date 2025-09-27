@@ -5,11 +5,13 @@ import { serverDb } from "@/lib/drizzle/server";
 import { posts } from "@/lib/drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const user = await requireAuth();
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -40,11 +42,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const user = await requireAuth();
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const { id } = await params;
     const body = (await request.json()) as {
       content?: string;
       imageUrl?: string;
