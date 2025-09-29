@@ -11,7 +11,7 @@ import UserMenuPopup from "./components/UserMenuPopup";
 import { usePostHog } from "posthog-js/react";
 import { useAppContext } from "@/contexts/AppContext";
 import Link from "next/link";
-import useApi from "@/lib/api";
+import { signOut } from "next-auth/react";
 import { fetchAwsAsset } from "@/lib/aws-s3";
 import { useBrandContext } from "@/contexts/BrandContext";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import { defaultBrand } from "@/contexts/BrandContext/helpers/initialState";
 import { ChevronUp, LogOut } from "lucide-react";
 import { useUpsertBrand } from "@/hooks/brand";
 import { omit } from "lodash";
+import { saveUnauthenticatedBrand } from "@/utils/unauthenticatedStorage";
 
 interface SideBarProps {
   mainContent: ReactNode | React.JSX.Element;
@@ -38,10 +39,8 @@ const SideBar: React.FC<SideBarProps> = ({
   const posthog = usePostHog();
   const {
     state: { currentUser, isPremiumUser, isSignedIn },
-    refreshAuth,
   } = useAppContext();
   const router = useRouter();
-  const api = useApi();
   const {
     state: { brands, brand },
     setBrand,
@@ -88,24 +87,17 @@ const SideBar: React.FC<SideBarProps> = ({
 
   const handleSignOut = async () => {
     try {
-      const response = await api.post("/auth/logout");
-
-      if (response.success) {
-        // Clear temp data
-
-        // Refresh auth state
-        await refreshAuth();
-
-        // Redirect to home page
-        window.location.href = "/auth";
-      } else {
-        console.error("Logout failed:", response.error);
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Fallback: clear localStorage and refresh
+      // Clear temp data
       localStorage.removeItem("tempUserId");
-      window.location.reload();
+
+      // Use NextAuth signOut
+      await signOut({
+        callbackUrl: "/app/design-templates/social-banner",
+        redirect: true,
+      });
+    } catch {
+      // Fallback: redirect manually
+      window.location.href = "/app/design-templates/social-banner";
     }
   };
 
@@ -180,6 +172,7 @@ const SideBar: React.FC<SideBarProps> = ({
                 href="/app/design-templates/social-banner"
                 className="cursor-pointer"
                 prefetch={true}
+                onClick={() => saveUnauthenticatedBrand(brand)}
               >
                 <Image
                   src={fetchAwsAsset("instantBranding", "png")}

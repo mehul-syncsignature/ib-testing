@@ -10,7 +10,8 @@ import {
   nextAuthVerificationTokens,
 } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { users } from "@/lib/drizzle/schema";
+import { users, brands } from "@/lib/drizzle/schema";
+import { defaultBrand } from "@/contexts/BrandContext/helpers/initialState";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
@@ -127,8 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               image: user[0].profileUrl,
             };
           }
-        } catch (error) {
-          console.error(error);
+        } catch {
           return null;
         }
       },
@@ -138,8 +138,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
   pages: {
-    signIn: "/auth",
-    error: "/auth",
+    signIn: "/app/design-templates/social-banner",
+    error: "/app/design-templates/social-banner",
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
@@ -149,11 +149,64 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       // Persist user ID and other info to the token right after signin
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        
+        // Handle OAuth user creation after NextAuth user is created
+        if (account?.provider === "google" && user.email) {
+          try {
+            // Check if user exists in our custom User table using the correct NextAuth user ID
+            const existingUser = await db
+              .select()
+              .from(users)
+              .where(eq(users.id, user.id))
+              .limit(1);
+
+            if (!existingUser.length) {
+              // Create new user record with correct NextAuth user ID
+              const [newUser] = await db.insert(users).values({
+                id: user.id, // This is now the correct NextAuth user ID
+                email: user.email,
+                firstName: user.name?.split(" ")[0] || null,
+                lastName: user.name?.split(" ").slice(1).join(" ") || null,
+                profileUrl: user.image || null,
+                planId: 1,
+                onboardingStatus: "COMPLETE", // Skip onboarding for OAuth users
+              }).returning();
+
+              // Check if user already has brands (to prevent duplicates)
+              const existingBrands = await db
+                .select()
+                .from(brands)
+                .where(eq(brands.userId, newUser.id))
+                .limit(1);
+
+              // Only create default brand if none exists
+              if (!existingBrands.length) {
+                const brandName = newUser.firstName ? `${newUser.firstName}'s Brand` : "My Brand";
+                await db.insert(brands).values({
+                  id: crypto.randomUUID(),
+                  userId: newUser.id,
+                  name: brandName,
+                  config: defaultBrand.config,
+                  socialLinks: defaultBrand.socialLinks,
+                  brandImages: defaultBrand.brandImages,
+                  infoQuestions: defaultBrand.infoQuestions,
+                  brandMark: {
+                    ...defaultBrand.brandMark,
+                    name: newUser.firstName || "User",
+                    headshotUrl: newUser.profileUrl || defaultBrand.brandMark.headshotUrl,
+                  },
+                });
+              }
+            }
+          } catch {
+            // If user creation fails, continue with OAuth flow
+          }
+        }
       }
       return token;
     },
@@ -164,71 +217,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async signIn({ user, account }) {
+    async signIn({ account }) {
       // For credentials provider, just allow sign-in (user already created in authorize)
       if (account?.provider === "credentials") {
         return true;
       }
 
-      // Only run this logic for OAuth providers, not credentials
-      if (account?.provider === "google" && user.email && user.id) {
-        try {
-          // Check if user exists in our custom User table
-          const existingUser = await db
-            .select()
-            .from(users)
-            .where(eq(users.email, user.email))
-            .limit(1);
-
-          if (!existingUser.length) {
-            // Create new user record in our custom table using NextAuth user ID
-            await db.insert(users).values({
-              id: user.id, // Use NextAuth user ID as our User table ID
-              email: user.email,
-              firstName: user.name?.split(" ")[0] || null,
-              lastName: user.name?.split(" ").slice(1).join(" ") || null,
-              profileUrl: user.image || null,
-              planId: 1,
-              onboardingStatus: "PENDING",
-            });
-          } else {
-            // Update existing user profile and ensure ID consistency
-            await db
-              .update(users)
-              .set({
-                profileUrl: user.image || existingUser[0].profileUrl,
-                firstName:
-                  user.name?.split(" ")[0] || existingUser[0].firstName,
-                lastName:
-                  user.name?.split(" ").slice(1).join(" ") ||
-                  existingUser[0].lastName,
-              })
-              .where(eq(users.email, user.email));
-
-            // If the existing user has a different ID, we need to handle this carefully
-            if (existingUser[0].id !== user.id) {
-              console.warn(
-                `User ID mismatch for ${user.email}: existing=${existingUser[0].id}, auth=${user.id}`
-              );
-              // Update the user ID to match NextAuth
-              await db
-                .update(users)
-                .set({ id: user.id })
-                .where(eq(users.email, user.email));
-            }
-          }
-        } catch (error) {
-          console.error("SignIn callback error:", error);
-          // Log more details for debugging
-          console.error("User data:", {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          });
-          console.error("Account data:", { provider: account.provider });
-          return false;
-        }
+      // For OAuth providers, just allow sign-in - we'll handle user creation in jwt callback
+      if (account?.provider === "google") {
+        return true;
       }
+      
       return true;
     },
   },

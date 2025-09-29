@@ -20,7 +20,7 @@ const AuthPage = () => {
       {view === "signIn" ? (
         <SignIn handleSetView={handleSetView} />
       ) : (
-        <SignUp showSignUpForm handleSetView={handleSetView} />
+        <SignUp handleSetView={handleSetView} />
       )}
     </>
   );

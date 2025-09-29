@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import SignUpFormView from "./components/SignUpFormView";
-import BenefitsView from "./components/BenefitsView";
 import { useAppContext } from "@/contexts/AppContext";
-import { usePaddleCheckout } from "@/hooks/paddleCheckout";
+import { useDataMigration } from "@/hooks/useDataMigration";
+import { getUnauthenticatedData } from "@/utils/unauthenticatedStorage";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 
 interface SignUpProps {
   handleSetView: (view: "signIn" | "signUp") => void;
   onCloseAuth?: () => void;
-  onOpenUpgrade?: () => void;
-  showSignUpForm?: boolean;
 }
 
 interface FormData {
@@ -22,7 +20,6 @@ interface FormData {
 
 const SignUp = ({
   handleSetView,
-  showSignUpForm = false,
   onCloseAuth,
 }: SignUpProps) => {
   const [formData, setFormData] = useState<FormData>({
@@ -35,10 +32,8 @@ const SignUp = ({
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const {
-    refreshAuth,
-    state: { currentUser, isPremiumUser, isSignedIn },
-  } = useAppContext();
+  const { refreshAuth } = useAppContext();
+  const { migrateStoredData, clearStoredData } = useDataMigration();
 
   const handleFormDataChange = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -49,12 +44,18 @@ const SignUp = ({
     setError("");
 
     try {
+      // Store localStorage data before Google OAuth redirect
+      const storedData = getUnauthenticatedData();
+      if (storedData) {
+        // Store in sessionStorage to survive the OAuth redirect
+        sessionStorage.setItem('pendingMigration', JSON.stringify(storedData));
+      }
+
       await signIn("google", {
         redirect: true,
-        callbackUrl: "/app/auth-redirect",
+        callbackUrl: "/app/design-templates/social-banner",
       });
 
-      // Don't set loading to false here if redirect is true, as the page will redirect
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -63,32 +64,6 @@ const SignUp = ({
       setError(errorMessage);
       setIsGoogleLoading(false);
     }
-  };
-
-  const { openCheckout } = usePaddleCheckout();
-
-  const handleUpgrade = async () => {
-    if (currentUser) {
-      await openCheckout({
-        priceId:
-          process.env.NEXT_PUBLIC_PADDLE_PRICE_ID ||
-          "pri_01jzyp8sft721kamdv8ff7n3a1",
-        userId: currentUser?.id,
-        onError: (error) => {
-          toast.error(`${error}`);
-        },
-      });
-    }
-  };
-
-  const handleSignUpClick = () => {
-    if (!isPremiumUser && isSignedIn) {
-      if (onCloseAuth) {
-        onCloseAuth();
-      }
-      handleUpgrade();
-    }
-    // If user is not signed in, form is already showing
   };
 
   const handleEmailSignUp = async (data: FormData) => {
@@ -110,16 +85,22 @@ const SignUp = ({
       } else {
         toast.success("Account created successfully!");
 
-        // Refresh auth state first
+        try {
+          const migrationResult = await migrateStoredData(true);
+          if (migrationResult.brandMigrated) {
+            toast.success("Your customized brand has been saved to your account!");
+          }
+        } catch {
+          clearStoredData();
+        }
+
         await refreshAuth();
 
-        // Close auth dialog and redirect to onboarding
         if (onCloseAuth) {
           onCloseAuth();
         }
 
-        // Redirect to onboarding for all users
-        window.location.href = "/app/onboarding";
+        window.location.href = "/app/design-templates/social-banner";
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -132,31 +113,18 @@ const SignUp = ({
     }
   };
 
-  const handleBackToBenefits = () => {
-    setError("");
-  };
-
-  if (showSignUpForm) {
-    return (
-      <SignUpFormView
-        formData={formData}
-        onFormDataChange={handleFormDataChange}
-        onSubmit={handleEmailSignUp}
-        onGoogleSignUp={handleGoogleSignUp}
-        onBack={handleBackToBenefits}
-        onSignInClick={() => handleSetView("signIn")}
-        isLoading={isLoading}
-        isGoogleLoading={isGoogleLoading}
-        error={error}
-      />
-    );
-  }
-
+  // Always show the signup form directly
   return (
-    <BenefitsView
-      onSignUpClick={handleSignUpClick}
+    <SignUpFormView
+      formData={formData}
+      onFormDataChange={handleFormDataChange}
+      onSubmit={handleEmailSignUp}
+      onGoogleSignUp={handleGoogleSignUp}
+      onBack={() => setError("")}
       onSignInClick={() => handleSetView("signIn")}
-      isSignedIn={isSignedIn}
+      isLoading={isLoading}
+      isGoogleLoading={isGoogleLoading}
+      error={error}
     />
   );
 };

@@ -52,10 +52,15 @@ export default function LogoutPage() {
       }
 
       // Sign out from NextAuth and redirect
-      await signOut({
-        callbackUrl: "/auth",
-        redirect: true,
-      });
+      try {
+        await signOut({
+          callbackUrl: "/app/design-templates/social-banner",
+          redirect: true,
+        });
+      } catch {
+        // If NextAuth signOut fails, redirect manually
+        window.location.href = "/app/design-templates/social-banner";
+      }
     };
 
     performLogout();

@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useAppContext } from "@/contexts/AppContext";
 import { signIn } from "next-auth/react";
 import { fetchAwsAsset } from "@/lib/aws-s3";
+import { clearUnauthenticatedData } from "@/utils/unauthenticatedStorage";
 import { Public_Sans } from "next/font/google";
 import { useRouter } from "next/navigation";
 
@@ -91,7 +92,7 @@ const SignIn = ({ handleSetView }: SignInProps) => {
     try {
       await signIn("google", {
         redirect: true,
-        callbackUrl: "/app/auth-redirect",
+        callbackUrl: "/app/design-templates/social-banner",
       });
 
       // Don't set loading to false here if redirect is true, as the page will redirect
@@ -125,9 +126,12 @@ const SignIn = ({ handleSetView }: SignInProps) => {
         // Refresh auth state
         await refreshAuth();
 
-        // Redirect to auth-redirect to handle proper onboarding flow
+        // Clear localStorage for existing users (they have their own saved data)
+        clearUnauthenticatedData();
+
+        // Redirect to main app
         if (typeof window !== "undefined") {
-          window.location.href = "/auth-redirect";
+          window.location.href = "/app/design-templates/social-banner";
         }
       }
     } catch (error: unknown) {

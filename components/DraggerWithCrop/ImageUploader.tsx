@@ -1,6 +1,5 @@
 "use client";
 
-// src/components/DraggerWithCrop/ImageUploader.tsx
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ import {
   detectMimeTypeFromBlob,
 } from "@/hooks/s3Upload";
 import { useR2Upload } from "@/hooks/r2Upload";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import ImageViewer from "./ImageViewer";
 
@@ -224,7 +223,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     } else {
       setProcessingStep("idle");
       toast.error("Background removal failed, Try again.");
-      // setError("Background removal failed and no fallback image available.");
     }
   }
 
@@ -339,7 +337,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     <div className="h-full w-full">
       <div className="flex items-center gap-4 mb-2">
         <div className="h-[7rem] w-full">
-          {!finalImage ? (
+          {processingStep === "removing-bg" ? (
+            <div className="flex h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <p className="mt-2 text-sm text-muted-foreground">
+                Processing image...
+              </p>
+            </div>
+          ) : !finalImage ? (
             <Dropzone
               maxFileSize={maxFileSize}
               onImageSelected={handleImageSelected}
@@ -355,7 +360,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                   ? r2UploadProgress
                   : bgRemovalProgress
               }
-              // onClick={handleChangeImage}
             />
           ) : (
             <ImageViewer
@@ -367,6 +371,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           )}
         </div>
       </div>
+
       {/* Position Adjustment Button */}
       {/* {isAdjustablePosition && finalImage && !simpleUploader && (
         <div className="w-full">
@@ -410,7 +415,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           </div>
         </>
       )} */}
-
+      
       <CropDialog
         imageUrl={imageSource}
         onCropComplete={handleCropComplete}
@@ -425,7 +430,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         aspectRatio={aspectRatio}
       />
 
-      {/* Checkered background CSS */}
       <style jsx global>{`
         .bg-light-checkered {
           background-color: #f9f9f9;

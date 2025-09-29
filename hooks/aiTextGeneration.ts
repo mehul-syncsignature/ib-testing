@@ -2,6 +2,7 @@
 import { useState } from "react";
 import useApi from "@/lib/api";
 import { v4 as uuid } from "uuid";
+import { useAppContext } from "@/contexts/AppContext";
 
 // Types for the asset variants with generic slot names - match exact requirements
 export interface TopBanner {
@@ -93,12 +94,20 @@ export interface GetFirstGeneratedResponse {
 // Custom hook for AI asset variants generation using questions
 export const useGenerateAssetVariants = () => {
   const api = useApi();
+  const { state: { isSignedIn } } = useAppContext();
   const [generatedVariants, setGeneratedVariants] =
     useState<GeneratedAssetVariants | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setHookError] = useState<Error | null>(null);
 
   const generateAssetVariants = async (request: GenerateAssetsRequest) => {
+    // Check authentication first
+    if (!isSignedIn) {
+      const authError = new Error("Authentication required. Please sign up to use AI features.");
+      setHookError(authError);
+      throw authError;
+    }
+
     setLoading(true);
     setHookError(null);
     setGeneratedVariants(null);

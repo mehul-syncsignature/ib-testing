@@ -21,9 +21,16 @@ import { AssetContextProvider } from "@/contexts/AssetContext";
 import { BrandContextProvider } from "@/contexts/BrandContext";
 import { PostHogProvider } from "@/providers/PostHogProvider";
 import DataInitializationProvider from "@/providers/DataInitializationProvider";
+import { useOAuthMigration } from "@/hooks/useOAuthMigration";
 
 interface ClientProvidersProps {
   children: React.ReactNode;
+}
+
+// Component to handle OAuth migration
+function OAuthMigrationHandler() {
+  useOAuthMigration();
+  return null;
 }
 
 export default function ClientProviders({ children }: ClientProvidersProps) {
@@ -36,7 +43,8 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
               <ScrollbarProvider>
                 <PaddleProvider>
                   <DataInitializationProvider>
-                  {children}
+                    <OAuthMigrationHandler />
+                    {children}
                   </DataInitializationProvider>
                   <Toaster />
                 </PaddleProvider>

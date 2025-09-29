@@ -14,8 +14,8 @@ interface BrandSwitcherProps {
   brands: Brand[];
   currentBrand: Brand | null;
   onBrandSelect: (brand: Brand) => void;
-  onBrandEdit: (brand: Brand) => void;
-  onBrandDelete: (brand: Brand) => void;
+  onBrandEdit: (_brand: Brand) => void;
+  onBrandDelete: (_brand: Brand) => void;
   onCreateBrand: () => void;
   className?: string;
 }
@@ -46,49 +46,58 @@ const BrandSwitcher = ({
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <div className="flex-shrink-2 p-4 w-full bg-[#F3F5F6CC] rounded-[0.5rem] cursor-pointer focus:outline-none focus:ring-0">
-            {currentBrand && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="flex h-8 w-8 rounded-md overflow-hidden flex-shrink-0">
-                    <div
-                      className="w-1/3 h-full"
-                      style={{
-                        backgroundColor:
-                          currentBrand?.config?.originalColors?.secondaryColor,
-                      }}
-                    />
-                    <div
-                      className="w-1/3 h-full"
-                      style={{
-                        backgroundColor:
-                          currentBrand?.config?.originalColors?.primaryColor,
-                      }}
-                    />
-                    <div
-                      className="w-1/3 h-full"
-                      style={{
-                        backgroundColor:
-                          currentBrand?.config?.originalColors?.highlightColor,
-                      }}
-                    />
-                  </div>
-                  <span className="text-[1rem] font-medium text-[#343B3F] truncate min-w-0">
-                    {currentBrand.name}
-                  </span>
-                </div>
-                <div className="font-normal">
-                  {dropdownOpen ? (
-                    <ChevronUp className="text-[#343B3F] font-normal" />
-                  ) : (
-                    <ChevronDown className="text-[#343B3F] font-normal" />
-                  )}
-                </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                {currentBrand ? (
+                  <>
+                    <div className="flex h-8 w-8 rounded-md overflow-hidden flex-shrink-0">
+                      <div
+                        className="w-1/3 h-full"
+                        style={{
+                          backgroundColor:
+                            currentBrand?.config?.originalColors?.secondaryColor,
+                        }}
+                      />
+                      <div
+                        className="w-1/3 h-full"
+                        style={{
+                          backgroundColor:
+                            currentBrand?.config?.originalColors?.primaryColor,
+                        }}
+                      />
+                      <div
+                        className="w-1/3 h-full"
+                        style={{
+                          backgroundColor:
+                            currentBrand?.config?.originalColors?.highlightColor,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[1rem] font-medium text-[#343B3F] truncate min-w-0">
+                      {currentBrand.name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex h-8 w-8 rounded-md overflow-hidden flex-shrink-0 bg-gray-200"></div>
+                    <span className="text-[1rem] font-medium text-[#343B3F] truncate min-w-0">
+                      {brands.length > 0 ? "Select a brand" : "Create your first brand"}
+                    </span>
+                  </>
+                )}
               </div>
-            )}
+              <div className="font-normal">
+                {dropdownOpen ? (
+                  <ChevronUp className="text-[#343B3F] font-normal" />
+                ) : (
+                  <ChevronDown className="text-[#343B3F] font-normal" />
+                )}
+              </div>
+            </div>
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="relative max-h-64 overflow-y-auto scrollbar-hide w-[var(--radix-dropdown-menu-trigger-width)]">
-          {brands.map((brandItem: Brand, index) => (
+          {brands.length > 0 ? brands.map((brandItem: Brand, index) => (
             <div
               key={brandItem.id || index}
               className="p-2 hover:bg-gray-50 cursor-pointer"
@@ -110,7 +119,11 @@ const BrandSwitcher = ({
                 />
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="p-4 text-center text-gray-500 text-sm">
+              Create your first brand to get started
+            </div>
+          )}
           <div
             className="p-2 hover:bg-gray-50 cursor-pointer"
             onClick={(e) => {

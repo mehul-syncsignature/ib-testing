@@ -25,6 +25,7 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
   const searchParams = useSearchParams();
   const designId = searchParams.get('designId');
 
+  // Context hooks
   const {
     state: {
       currentSlideIndex,
@@ -45,24 +46,36 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
   } = useAppContext();
 
   useEffect(() => {
+    const isCarouselAsset = currentAssetType === "social-carousel";
+    
+    if (!isCarouselAsset) {
+      return;
+    }
+
     if (!designId) {
-      initializeCarouselSlides();
+      if (slides.length === 0 || slides.length === 1 && slides[0].id === "slide-1") {
+        initializeCarouselSlides();
+      } else {
+        syncRefsWithSlides();
+      }
     } else {
       if (slides.length > 0) {
-        carouselSlideRefs.length = 0;
-        slides.forEach(() => 
-          carouselSlideRefs.push(createRef<HTMLDivElement | null>())
-        );
+        syncRefsWithSlides();
       }
     }
-  }, [designId, slides.length]);
+  }, [designId, currentAssetType, templateId, slides.length]);
 
-  // Initialize carousel with 3 slides
+  const syncRefsWithSlides = () => {
+    carouselSlideRefs.length = 0;
+    slides.forEach(() => 
+      carouselSlideRefs.push(createRef<HTMLDivElement | null>())
+    );
+  };
+
   const initializeCarouselSlides = () => {
     const carouselData = templateData["social-carousel"]?.[templateId];
 
     if (!carouselData) {
-      // No slide data found for template, use fallback
       return;
     }
 
@@ -91,17 +104,14 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
     setCurrentSlideIndex(0);
   };
 
-  // Carousel dimensions
   const originalWidth = 1080;
   const originalHeight = 1350;
   const totalSlides = slides.length;
 
-  // LinkedIn carousel specific logic
   const isLinkedInCarousel = currentAssetType === "social-carousel";
 
   const canAddSlideAt = (position: number) => {
     if (isLinkedInCarousel) {
-      // For LinkedIn carousel, only allow adding middle slides
       return position > 0 && position < totalSlides;
     }
     return true;
@@ -109,26 +119,11 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
 
   const canDeleteSlide = (slideIndex: number) => {
     if (isLinkedInCarousel) {
-      // For LinkedIn carousel, don't allow deleting first or last slide
       return slideIndex !== 0 && slideIndex !== totalSlides - 1;
     }
     return totalSlides > 1;
   };
 
-  // useEffect(() => {
-  //   while (carouselSlideRefs.length < totalSlides) {
-  //     carouselSlideRefs.push(createRef<HTMLDivElement | null>());
-  //   }
-  //   if (carouselSlideRefs.length > totalSlides) {
-  //     carouselSlideRefs.length = totalSlides;
-  //   }
-  //   return () => {
-  //     carouselSlideRefs.length = 0;
-  //     console.log('Carousel unmounted, refs cleared.');
-  //   };
-  // }, [carouselSlideRefs, totalSlides])
-
-  // Scaling effect
   useEffect(() => {
     const updateScale = () => {
       if (wrapperRef.current?.parentElement) {
@@ -142,26 +137,25 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
     return () => window.removeEventListener("resize", updateScale);
   }, []);
 
-  // Get current slide data
   const getCurrentSlideData = () => {
     return slides[currentSlideIndex]?.data || null;
   };
 
-  // Get slide data by index
   const getSlideDataByIndex = (index: number): Data | null => {
     return slides[index]?.data || null;
   };
 
-  // Navigation functions
   const navigateToSlide = (index: number) => {
     if (index >= 0 && index < slides.length) {
       setCurrentSlideIndex(index);
     }
   };
 
-  // Slide management functions
   const addSlideAt = (position: number) => {
-    if (!canAddSlideAt(position)) return;
+    if (!canAddSlideAt(position)) {
+      console.warn('Cannot add slide at position', position);
+      return;
+    }
 
     const carouselData = templateData["social-carousel"]?.[templateId];
     const middleSlideData = carouselData?.middle || {};
@@ -175,22 +169,25 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
       },
     };
 
-    carouselSlideRefs.splice(position, 0, createRef());
-
     const newSlides = [...slides];
     newSlides.splice(position, 0, newSlide);
+    
+    carouselSlideRefs.splice(position, 0, createRef());
+    
     setSlides(newSlides);
-
     setCurrentSlideIndex(position);
+    
   };
 
   const deleteSlide = (slideIndex: number) => {
-    if (!canDeleteSlide(slideIndex)) return;
-
-    carouselSlideRefs.splice(slideIndex, 1);
+    if (!canDeleteSlide(slideIndex)) {
+      console.warn('Cannot delete slide at index', slideIndex);
+      return;
+    }
 
     const newSlides = slides.filter((_, index) => index !== slideIndex);
-    setSlides(newSlides);
+    
+    carouselSlideRefs.splice(slideIndex, 1);
 
     let newIndex = currentSlideIndex;
     if (slideIndex <= currentSlideIndex && currentSlideIndex > 0) {
@@ -198,7 +195,10 @@ const SocialCarouselWrapper: React.FC<SocialCarouselWrapperProps> = () => {
     } else if (currentSlideIndex >= newSlides.length) {
       newIndex = newSlides.length - 1;
     }
+    
+    setSlides(newSlides);
     setCurrentSlideIndex(Math.max(0, newIndex));
+    
   };
 
   const currentSlideData = getCurrentSlideData();

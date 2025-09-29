@@ -8,12 +8,7 @@ import { TextFieldsSection } from "./components/sections/TextFieldsSection";
 import { useUnifiedDataConfig } from "@/hooks/unifiedDataConfig";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  formSchema,
-  FormValues,
-  SlidePosition,
-  CarouselData,
-} from "./types";
+import { formSchema, FormValues, SlidePosition, CarouselData } from "./types";
 import { useAppContext } from "@/contexts/AppContext";
 import { useFieldVisibility } from "./hooks/useFieldVisibility";
 import { useAssetContext } from "@/contexts/AssetContext";
@@ -25,10 +20,12 @@ import { Sparkles } from "lucide-react";
 import AIContentGenerationDialog, {
   AIContentGenerationDialogHandle,
 } from "@/components/AIContentGenerationDialog";
+import AuthDialog from "@/components/Auth";
+import { AuthDialogHandle } from "@/components/Auth/AuthDialog";
 
 const ControlPanel = () => {
   const {
-    state: { headshot },
+    state: { headshot, isSignedIn },
     setHeadshot,
   } = useAppContext();
 
@@ -43,6 +40,7 @@ const ControlPanel = () => {
   >(null);
 
   const aiDialogRef = useRef<AIContentGenerationDialogHandle>(null);
+  const authDialogRef = useRef<AuthDialogHandle>(null);
 
   useEffect(() => {
     if (initialShowBrandMark === null && data.showBrandMark !== undefined) {
@@ -122,59 +120,70 @@ const ControlPanel = () => {
       );
 
       setData(updatedData);
-
     };
 
     const subscription = form.watch(handleFormChange);
     return () => subscription.unsubscribe();
   }, [form, setData, setHeadshot, visibleFields, headshot]);
 
+  const handleAIGeneration = () => {
+    if (!isSignedIn) {
+      authDialogRef?.current?.setAuthView("signUp");
+      authDialogRef?.current?.open();
+      return;
+    }
+    aiDialogRef.current?.open();
+  };
   const formContent = (
-    <div className="overflow-y-auto p-4 space-y-6 scrollbar-thin-custom">
-      <Form {...form}>
-        <form className="space-y-8">
-          {/* AI Content Generation Button */}
-          {process.env.NEXT_PUBLIC_NODE_ENV === "development" && (
-            <div className="pb-4 border-b">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => aiDialogRef.current?.open()}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate AI Content
-              </Button>
-            </div>
-          )}
+    <>
+      <AuthDialog ref={authDialogRef} />
 
-          <TextFieldsSection
-            form={form}
-            visibleFields={visibleFields}
-            handleToggleField={handleToggleField}
-          />
-          {initialShowBrandMark && (
-            <div className="flex items-center justify-between">
-              <Label
-                htmlFor="brandmark-main-toggle"
-                className="text-smx cursor-pointer flex items-center gap-2"
-              >
-                Brand Mark
-              </Label>
-              <Switch
-                id="brandmark-main-toggle"
-                checked={data.showBrandMark}
-                onCheckedChange={handleBrandMarkToggle}
-                className="data-[state=checked]:bg-primary"
-              />
-            </div>
-          )}
-        </form>
-      </Form>
+      <div className="overflow-y-auto p-4 space-y-6 scrollbar-thin-custom">
+        <Form {...form}>
+          <form className="space-y-8">
+            {/* AI Content Generation Button */}
+            {process.env.NEXT_PUBLIC_NODE_ENV === "development" && (
+              <div className="pb-4 border-b">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleAIGeneration}
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate AI Content
+                </Button>
+              </div>
+            )}
 
-      {/* AI Content Generation Dialog */}
-      <AIContentGenerationDialog ref={aiDialogRef} />
-    </div>
+            <TextFieldsSection
+              form={form}
+              visibleFields={visibleFields}
+              handleToggleField={handleToggleField}
+            />
+            {initialShowBrandMark && (
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="brandmark-main-toggle"
+                  className="text-smx cursor-pointer flex items-center gap-2"
+                >
+                  Brand Mark
+                </Label>
+                <Switch
+                  id="brandmark-main-toggle"
+                  checked={data.showBrandMark}
+                  onCheckedChange={handleBrandMarkToggle}
+                  className="data-[state=checked]:bg-primary"
+                />
+              </div>
+            )}
+          </form>
+        </Form>
+
+        {/* AI Content Generation Dialog */}
+        <AIContentGenerationDialog ref={aiDialogRef} />
+      </div>
+    </>
   );
 
   return <SideBar mainContent={formContent} showFooter={true} />;

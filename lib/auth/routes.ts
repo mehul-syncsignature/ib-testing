@@ -9,9 +9,7 @@ export interface RouteConfig {
 export const routes: RouteConfig = {
   // Public routes - no authentication required
   public: [
-    "/auth",
     "/app/logout",
-    "/app/auth-redirect",
     "/api/auth/*", // NextAuth routes
     "/api/webhooks/paddle-webhook",
     "/app/checkout-complete",

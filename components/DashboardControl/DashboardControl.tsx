@@ -4,6 +4,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { useBrandContext } from "@/contexts/BrandContext";
+import { useAppContext } from "@/contexts/AppContext";
 import { Brand } from "@/contexts/BrandContext/types";
 import { Folder, PanelsLeftBottom, Sparkles } from "lucide-react";
 import { defaultBrand } from "@/contexts/BrandContext/helpers/initialState";
@@ -16,6 +17,7 @@ import CreateBrandDialog, {
   CreateBrandDialogHandle,
 } from "./components/CreateBrandDialog";
 import AuthDialog, { AuthDialogHandle } from "@/components/Auth/AuthDialog";
+import BenefitsDialog, { BenefitsDialogHandle } from "@/components/BenefitsDialog";
 import BrandSwitcher from "@/components/BrandSwitcher";
 import { omit } from "lodash";
 
@@ -31,9 +33,9 @@ const DashboardControl = () => {
   const [deleteBrand] = useDeleteBrand();
   const [upsertBrand, { loading: upsertLoading }] = useUpsertBrand();
 
-  // const {
-  //   state: { isPremiumUser },
-  // } = useAppContext();
+  const {
+    state: { isPremiumUser, isSignedIn },
+  } = useAppContext();
 
   // Load fonts when brand changes
   useEffect(() => {
@@ -65,6 +67,7 @@ const DashboardControl = () => {
   };
 
   const authDialogRef = useRef<AuthDialogHandle>(null);
+  const benefitsDialogRef = useRef<BenefitsDialogHandle>(null);
 
   const navigationItems = [
     {
@@ -88,12 +91,17 @@ const DashboardControl = () => {
   ];
 
   const heandleCreateBrand = () => {
-    // if (isPremiumUser) {
-    createBrandDialogRef.current?.open();
-    // } else {
-    //   authDialogRef?.current?.setAuthView("signUp");
-    //   authDialogRef?.current?.open();
-    // }
+    if (!isSignedIn) {
+      // Show signup dialog for unauthenticated users
+      authDialogRef?.current?.setAuthView("signUp");
+      authDialogRef?.current?.open();
+    } else if (isPremiumUser) {
+      // Allow premium users to create brands
+      createBrandDialogRef.current?.open();
+    } else {
+      // Show benefits dialog for free users
+      benefitsDialogRef?.current?.open();
+    }
   };
 
   const handleCreateBrandSubmit = async (brandName: string) => {
@@ -136,22 +144,21 @@ const DashboardControl = () => {
 
   return (
     <>
-      <AuthDialog showSignUpForm={false} ref={authDialogRef} />
+      <AuthDialog ref={authDialogRef} />
+      <BenefitsDialog ref={benefitsDialogRef} isSignedIn={isSignedIn} />
 
       <div className="flex flex-col h-full select-none">
         <div className="flex-grow overflow-y-auto space-y-8">
-          {/* Brand Dropdown Selector */}
-          {brands && brands.length > 0 && (
-            <BrandSwitcher
-              brands={brands}
-              currentBrand={brand}
-              onBrandSelect={handleBrandSelect}
-              onBrandEdit={handleBrandEdit}
-              onBrandDelete={handleConfirmDelete}
-              onCreateBrand={heandleCreateBrand}
-              className="px-4 pt-4 mb-[8px]"
-            />
-          )}
+          {/* Brand Dropdown Selector - Always show for exploration */}
+          <BrandSwitcher
+            brands={brands || []}
+            currentBrand={brand}
+            onBrandSelect={handleBrandSelect}
+            onBrandEdit={handleBrandEdit}
+            onBrandDelete={handleConfirmDelete}
+            onCreateBrand={heandleCreateBrand}
+            className="px-4 pt-4 mb-[8px]"
+          />
 
           <div className="px-4 space-y-2">
             {navigationItems.map((item) => {

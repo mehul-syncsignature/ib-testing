@@ -70,9 +70,13 @@ const PhotoControl = () => {
         </Button>
       </div>
 
-      {brandMark.headshotUrl || brandMark.headshotUrl  === "" ? (
+      {brandMark.headshotUrl || brandMark.headshotUrl === "" ? (
         <ImageViewer
-          imageUrl={brandMark.headshotUrl != "" ? brandMark.headshotUrl : "https://assets.dev.instantbranding.ai/dummy.png"}
+          imageUrl={
+            brandMark.headshotUrl != ""
+              ? brandMark.headshotUrl
+              : "https://assets.dev.instantbranding.ai/dummy.png"
+          }
           onRemove={() => {
             setBrandMark({ ...brandMark, headshotUrl: undefined });
             setDataConfig({
@@ -90,7 +94,7 @@ const PhotoControl = () => {
           removeBackground={removeBackground}
           setRemoveBackground={setRemoveBackground}
           aspectRatio={1 / 1}
-          // uploadToS3
+          uploadToS3
         />
       )}
       <div className="flex items-center justify-between pt-2">

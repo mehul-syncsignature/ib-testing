@@ -14,6 +14,7 @@ import { useBrandContext } from "@/contexts/BrandContext";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { useUserAccessChecks } from "@/hooks/user";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 interface TemplatesGridProps {
   currentAssetType: AssetTypeKeys;
@@ -79,6 +80,7 @@ export const TemplatesGrid = ({
 }: TemplatesGridProps) => {
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const { templateWidth } = useTemplateWidth(templateContainerRef);
+  const searchParams = useSearchParams();
   const {
     state: { brand },
   } = useBrandContext();
@@ -92,6 +94,7 @@ export const TemplatesGrid = ({
   const { hasAccessToTemplate } = useUserAccessChecks();
 
   const [viewportWidth, setViewportWidth] = useState(0);
+  const pid = searchParams.get("pid");
 
   useEffect(() => {
     const handleResize = () => setViewportWidth(window.innerWidth);
@@ -140,7 +143,10 @@ export const TemplatesGrid = ({
 
   // Get redirect URL for template
   const getTemplateRedirectUrl = () => {
-    return `/app/editor/${currentAssetType}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const pid = urlParams.get('pid');
+    const baseUrl = `/app/editor/${currentAssetType}`;
+    return pid ? `${baseUrl}?pid=${pid}` : baseUrl;
   };
 
   return (
@@ -190,7 +196,7 @@ export const TemplatesGrid = ({
                   prefetch={true}
                   className="group" // Add group for group-hover effects
                 >
-                  <div className="relative w-full cursor-pointer rounded-[8px] overflow-hidden bg-gray-50">
+                  <div className={`relative w-full cursor-pointer rounded-[8px] overflow-hidden bg-gray-50 transition-all duration-200 ${pid ? 'hover:bg-blue-50 hover:ring-2 hover:ring-blue-200 hover:shadow-md' : 'hover:bg-gray-100'}`}>
                     {/* This container now perfectly fits the scaled template */}
                     <div
                       className="w-full flex items-center justify-center"

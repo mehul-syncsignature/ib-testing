@@ -11,7 +11,7 @@ import { useCanvasRef } from "@/hooks/canvas";
 import { useUpdatePost } from "@/hooks/post";
 import * as htmlToImage from "html-to-image";
 import { Button } from "@/components/ui/button";
-
+import {useRouter} from "next/navigation"
 export type CanvasProps = {
   type: ComponentType;
 };
@@ -25,8 +25,8 @@ const uuidValidate = (uuid: string) => {
 const Canvas = ({ type }: CanvasProps) => {
   const Component = componentMap[type];
   const searchParams = useSearchParams();
-  const postId = localStorage.getItem("pid");
-
+  const postId = searchParams.get("pid");
+  const router= useRouter();
   const { uploadToS3, loading: isUploading } = useS3Upload();
   const { canvasRef } = useCanvasRef();
   const [upsertDesign, { loading: isSaving }] = useUpsertDesign();
@@ -61,21 +61,18 @@ const Canvas = ({ type }: CanvasProps) => {
     }
 
     try {
-      toast.info("Generating image...");
       const imageBlob = await htmlToImage.toBlob(canvasRef.current, {
-        pixelRatio: 2, // Export at 2x resolution for better quality
+        pixelRatio: 2,       
       });
 
       if (!imageBlob) {
         throw new Error("Failed to create image blob from the design.");
       }
 
-      toast.info("Uploading image...");
       const file = new File([imageBlob], "upload.png", {
         type: imageBlob.type,
       });
       const imageUrl = await uploadToS3(file);
-      // window.open(imageUrl, "_blank");
 
       toast.info("Saving design...");
       const designId = searchParams.get("designId");
@@ -107,6 +104,8 @@ const Canvas = ({ type }: CanvasProps) => {
           ? "Design saved and added to post!"
           : "Design updated and added to post!"
       );
+      
+      router.push(`http://localhost:3000/app/ai-tools?pid=${postId}`)
     } catch (error) {
       toast.error(
         `Failed to add to post: ${
@@ -114,10 +113,7 @@ const Canvas = ({ type }: CanvasProps) => {
         }`
       );
     } finally {
-      // Clean up the postId from localStorage regardless of success or failure
-      if (postId) {
-        localStorage.removeItem("pid");
-      }
+      // No cleanup needed as URL params will naturally be removed when navigating away
     }
   };
 

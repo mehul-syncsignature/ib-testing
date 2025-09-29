@@ -13,11 +13,10 @@ export interface AuthDialogHandle {
 
 interface AuthDialogProps {
   initialView?: "signIn" | "signUp";
-  showSignUpForm?: boolean;
 }
 
 const AuthDialog = forwardRef<AuthDialogHandle, AuthDialogProps>(
-  ({ initialView = "signUp", showSignUpForm = true }, ref) => {
+  ({ initialView = "signUp" }, ref) => {
     const [open, setOpen] = useState(false);
     const [view, setView] = useState<"signIn" | "signUp">(initialView);
 
@@ -35,9 +34,6 @@ const AuthDialog = forwardRef<AuthDialogHandle, AuthDialogProps>(
       setOpen(false);
     };
 
-    const handleOpenUpgrade = () => {
-      setView("signUp");
-    };
 
     return (
       <>
@@ -50,8 +46,6 @@ const AuthDialog = forwardRef<AuthDialogHandle, AuthDialogProps>(
               <SignUp
                 handleSetView={handleSetView}
                 onCloseAuth={handleCloseAuth}
-                onOpenUpgrade={handleOpenUpgrade}
-                showSignUpForm={showSignUpForm}
               />
             ) : (
               <SignIn

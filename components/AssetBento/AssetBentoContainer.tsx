@@ -14,6 +14,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { AssetTypeKeys } from "@/contexts/AssetContext/types";
 import { useBrandContext } from "@/contexts/BrandContext";
+import { saveUnauthenticatedBrand } from "@/utils/unauthenticatedStorage";
 
 // type VisibilityConfig = {
 //   isVisible: boolean;
@@ -54,7 +55,7 @@ export default function AssetBentoContainer() {
   } = useBrandContext();
 
   const {
-    state: { sectionsData },
+    state: { sectionsData, isSignedIn },
     setSectionsData,
   } = useAppContext();
 
@@ -79,7 +80,7 @@ export default function AssetBentoContainer() {
   }, [sectionsData.length, setSectionsData]);
 
   useEffect(() => {
-    router.prefetch(`/editor/${currentAssetType}`);
+    router.prefetch(`/app/editor/${currentAssetType}`);
   }, [router]);
 
   // const handleUpgradeClick = () => {
@@ -99,8 +100,12 @@ export default function AssetBentoContainer() {
   ) => {
     const section = sectionsToRender.find((s) => s.id === sectionId);
     const assetConfig = section?.assets[assetKey];
-
     if (!assetConfig) return;
+
+    // Save current brand changes to localStorage for unauthenticated users before navigation
+    if (!isSignedIn && brand) {
+      saveUnauthenticatedBrand(brand);
+    }
 
     // NEW: Set asset configuration using simplified actions
     const assetType = assetConfig.assetType as AssetTypeKeys;
@@ -116,8 +121,7 @@ export default function AssetBentoContainer() {
       imageUrl: brand?.brandMark?.headshotUrl || assetConfig.data.imageUrl,
     };
     setDataConfig(updatedData);
-
-    router.push(`/editor/${assetType}`);
+    router.push(`/app/editor/${assetType}`);
   };
 
   // Check if we're using default sections (not AI-generated)

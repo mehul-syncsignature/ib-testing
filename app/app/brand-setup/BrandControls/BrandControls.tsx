@@ -17,6 +17,12 @@ import { fontOptions } from "@/app/app/brand-setup/BrandControls/components/Font
 import { loadBrandFonts } from "@/lib/fonts";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ColorControl from "@/app/app/brand-setup/BrandControls/components/ColorControl";
 import FontControl from "@/app/app/brand-setup/BrandControls/components/FontControl";
 import PhotoControl from "@/app/app/brand-setup/BrandControls/components/PhotoControl";
@@ -31,6 +37,8 @@ const BrandControls: React.FC = () => {
     setIsDirty,
     setName,
     setBrandMark,
+    setBrand,
+    setBrands,
   } = useBrandContext();
 
   const router = useRouter();
@@ -79,7 +87,7 @@ const BrandControls: React.FC = () => {
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (isDirty) {
+      if (isDirty && isSignedIn) {
         event.preventDefault();
         event.returnValue =
           "You have unsaved changes. Are you sure you want to leave?";
@@ -88,10 +96,10 @@ const BrandControls: React.FC = () => {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isDirty]);
+  }, [isDirty, isSignedIn]);
 
   useEffect(() => {
-    if (isDirty) {
+    if (isDirty && isSignedIn) {
       router.push = (() => {
         handleAttemptSave();
         return Promise.resolve();
@@ -116,18 +124,18 @@ const BrandControls: React.FC = () => {
       router.replace = originalReplace.current;
       router.back = originalBack.current;
     };
-  }, [isDirty, router]);
+  }, [isDirty, isSignedIn, router]);
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      if (isDirty) {
+      if (isDirty && isSignedIn) {
         event.preventDefault();
         window.history.pushState(null, "", window.location.href);
         handleAttemptSave();
       }
     };
 
-    if (isDirty) {
+    if (isDirty && isSignedIn) {
       window.history.pushState(null, "", window.location.href);
       window.addEventListener("popstate", handlePopState);
     }
@@ -135,7 +143,44 @@ const BrandControls: React.FC = () => {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [isDirty]);
+  }, [isDirty, isSignedIn]);
+
+useEffect(() => {
+  if(isSignedIn) return;
+  
+  const brandToSave = {
+    ...(brand.id ? { id: brand.id } : {}),
+    name: brand.name.trim(),
+    config: brand.config,
+    socialLinks: brand.socialLinks || {},
+    brandImages: brand.brandImages || [],
+    infoQuestions: brand.infoQuestions || {},
+    brandMark: {
+      name: brand.brandMark?.name || "Your Name",
+      socialHandle: brand.brandMark?.socialHandle || "@yourhandle",
+      website: brand.brandMark?.website || "",
+      logoUrl: brand.brandMark?.logoUrl || "",
+      headshotUrl: brand.brandMark?.headshotUrl || "",
+      companyName: brand.brandMark?.companyName || "",
+      headshotGradient: brand.brandMark?.headshotGradient || "solid-primary",
+    },
+  };
+  
+  setBrand(brandToSave);
+  setBrands([brandToSave]);
+}, [
+  isSignedIn,
+  brand.id,
+  brand.name,
+  brand.config,
+  brand.brandMark?.name,
+  brand.brandMark?.socialHandle,
+  brand.brandMark?.website,
+  brand.brandMark?.logoUrl,
+  brand.brandMark?.headshotUrl,
+  brand.brandMark?.companyName,
+  brand.brandMark?.headshotGradient,
+]);
 
   const handleSaveBrand = async () => {
     if (!currentUser) {
@@ -262,28 +307,43 @@ const BrandControls: React.FC = () => {
         )}
       </div>
 
-      {isSignedIn && (
-        <div className="flex-shrink-0 p-4 space-y-3 border-t bg-background cursor-pointer">
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSaveBrand}
-              disabled={!brand.name.trim() || loading || !isDirty}
-              className="flex-1"
-            >
-              {loading ? "Saving..." : "Save"}
-            </Button>
-          </div>
+      <div className="flex-shrink-0 p-4 space-y-3 border-t bg-background cursor-pointer">
+        <div className="flex gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1">
+                  <Button
+                    onClick={handleSaveBrand}
+                    disabled={
+                      !brand.name.trim() || loading || !isDirty || !isSignedIn
+                    }
+                    className="w-full"
+                  >
+                    {loading ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!isSignedIn && (
+                <TooltipContent>
+                  <p>Sign up to save your brand customizations</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
-      )}
+      </div>
 
-      <ConfirmationDialog
-        ref={confirmationDialogRef}
-        title="Unsaved Changes"
-        description="You have unsaved changes. Do you want to save or cancel?"
-        onOk={handleConfirmationSave}
-        onCancel={handleConfirmationCancel}
-        label="Save"
-      />
+      {isSignedIn && (
+        <ConfirmationDialog
+          ref={confirmationDialogRef}
+          title="Unsaved Changes"
+          description="You have unsaved changes. Do you want to save or cancel?"
+          onOk={handleConfirmationSave}
+          onCancel={handleConfirmationCancel}
+          label="Save"
+        />
+      )}
     </div>
   );
 };

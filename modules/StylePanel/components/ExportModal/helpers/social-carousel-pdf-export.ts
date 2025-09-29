@@ -14,7 +14,7 @@ export async function exportSocialCarouselToPDF(
     templateName,
     slideRefs,
     "jpeg",
-    1.5,
+    1.2,
     (progress) => onProgress(progress * 0.8 + 10)
   );
 
@@ -28,13 +28,14 @@ export async function exportSocialCarouselToPDF(
       orientation: "p",
       unit: "px",
       format: [1080, 1350],
+      compress: true,
     });
 
     pdf.deletePage(1);
 
     imageFiles.forEach((imageFile) => {
       pdf.addPage();
-      pdf.addImage(imageFile.data, "PNG", 0, 0, 1080, 1350);
+      pdf.addImage(imageFile.data, "JPEG", 0, 0, 1080, 1350, undefined, "FAST");
     });
 
     onProgress(95);

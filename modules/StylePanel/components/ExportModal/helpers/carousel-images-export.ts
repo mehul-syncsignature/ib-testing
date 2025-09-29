@@ -30,29 +30,47 @@ export async function exportCarouselSlidesToImages(
           continue;
         }
 
-        // Convert slide to image directly - same as social banner
-        const imageDataUrl = await htmlToImage.toPng(slideRef.current, {
-          width: 1080,
-          height: 1350,
-          pixelRatio: scale,
-          backgroundColor: "#ffffff",
-          filter: (node) => {
-            // Skip external stylesheets like Paddle
-            if (node.tagName === "LINK" && node.getAttribute) {
-              const href = node.getAttribute("href");
-              if (
-                href &&
-                (href.includes("paddle.com") ||
-                  href.includes("external-domain.com"))
-              ) {
-                return false;
-              }
-            }
-            return true;
-          },
-        });
+        const imageDataUrl = fileType === "jpeg" || fileType === "jpg"
+          ? await htmlToImage.toJpeg(slideRef.current, {
+              quality: 1, // High quality but compressed (0.92 is sweet spot)
+              width: 1080,
+              height: 1350,
+              pixelRatio: scale,
+              backgroundColor: "#ffffff",
+              filter: (node) => {
+                if (node.tagName === "LINK" && node.getAttribute) {
+                  const href = node.getAttribute("href");
+                  if (
+                    href &&
+                    (href.includes("paddle.com") ||
+                      href.includes("external-domain.com"))
+                  ) {
+                    return false;
+                  }
+                }
+                return true;
+              },
+            })
+          : await htmlToImage.toPng(slideRef.current, {
+              width: 1080,
+              height: 1350,
+              pixelRatio: scale,
+              backgroundColor: "#ffffff",
+              filter: (node) => {
+                if (node.tagName === "LINK" && node.getAttribute) {
+                  const href = node.getAttribute("href");
+                  if (
+                    href &&
+                    (href.includes("paddle.com") ||
+                      href.includes("external-domain.com"))
+                  ) {
+                    return false;
+                  }
+                }
+                return true;
+              },
+            });
 
-        // Generate filename
         const timestamp = new Date()
           .toISOString()
           .slice(0, 19)
@@ -71,7 +89,7 @@ export async function exportCarouselSlidesToImages(
       } catch (slideError) {
         console.error("slideError", slideError);
         toast.error(`Failed to export slide ${i + 1}`);
-        continue; // Skip this slide but continue with others
+        continue;
       }
     }
 

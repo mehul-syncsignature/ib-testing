@@ -58,10 +58,10 @@ const MyAssets = () => {
               <SavedDesignsGrid designs={designs} />
             </div>
           ) : (
-            <div className="text-gray-600">
+            <div className="text-gray-600 ">
               <p>Preview your captions and posts with your brand styling.</p>
               <div className="mt-8 ">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-[#F1F3F3] rounded-lg overflow-hidden">
+                <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8 bg-[#F1F3F3] rounded-lg p-6">
                   {posts?.map((p) => (
                     <div key={p.id} onClick={() => handlePostOnClick(p.id)}>
                       <LinkedInPostPreview

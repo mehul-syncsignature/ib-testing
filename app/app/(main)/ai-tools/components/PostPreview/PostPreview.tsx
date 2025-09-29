@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import StepBar from "../StepBar";
 import HookCard from "../HookCard";
 import LinkedInPostPreview from "../LinkedInPostPreview";
+import LinkedInPostsGrid from "../LinkedInPostsGrid";
 import { useAssetContext } from "@/contexts/AssetContext";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -50,8 +51,7 @@ const PostPreview = ({
   const storedHooks = getStoredHooks();
 
   const handleAddVisuals = () => {
-    localStorage.setItem("pid", postId!);
-    router.push("design-templates/social-carousel");
+    router.push(`design-templates/social-carousel?pid=${postId}`);
   };
 
   return (
@@ -183,13 +183,27 @@ const PostPreview = ({
 
           {/* Right Side - Preview Card */}
           <div className="w-1/2 items-center h-[90%]">
-            <div className="w-full h-full rounded-lg bg-[#F3F5F6] p-4">
-              <div className="h-full  space-y-4">
-                {posts.length && (
-                  <LinkedInPostPreview
-                    content={currentPost?.content || ""}
-                    imageUrl={currentPost?.imageUrl}
-                  />
+            <div className="w-full h-full rounded-lg bg-[#F3F5F6] p-6 overflow-y-auto">
+              <div className="h-full flex justify-center">
+                {posts.length > 0 && (
+                  currentPost ? (
+                    <div className="w-full max-w-lg">
+                      <LinkedInPostPreview
+                        content={currentPost.content || ""}
+                        imageUrl={currentPost.imageUrl || ""}
+                        className="w-full"
+                      />
+                    </div>
+                  ) : (
+                    <LinkedInPostsGrid 
+                      posts={posts.map(post => ({
+                        id: post.id,
+                        content: post.content || "",
+                        imageUrl: post.imageUrl || "",
+                      }))}
+                      className="w-full"
+                    />
+                  )
                 )}
               </div>
             </div>

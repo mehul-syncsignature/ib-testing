@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useRef } from "react";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface UseBackgroundRemovalProps {
   apiKey?: string;
@@ -25,9 +26,16 @@ export const useBackgroundRemoval = ({
 }: UseBackgroundRemovalProps): BackgroundRemovalHook => {
   const [isProcessing, setIsProcessing] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const { state: { isSignedIn } } = useAppContext();
 
   const remove = useCallback(
     async (imageUrl: string) => {
+      // Check authentication first
+      if (!isSignedIn) {
+        onError("Authentication required. Please sign up to use background removal features.");
+        return;
+      }
+
       if (!imageUrl) {
         onError("No image URL provided for background removal.");
         return;

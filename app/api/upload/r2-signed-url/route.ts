@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error:
-            "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
+            "Invalid file type. Only JPEG, PNG, WebP images and PDF files are allowed.",
         },
         { status: 400 }
       );

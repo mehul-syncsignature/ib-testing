@@ -112,12 +112,18 @@ export function generateUserAssetKey(userId: string, filename: string): string {
 }
 
 /**
- * Validate file type for uploads
+ * Validate file type for uploads (images and PDFs)
  * @param contentType - MIME type of the file
  * @returns boolean indicating if file type is allowed
  */
 export function isValidImageType(contentType: string): boolean {
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const allowedTypes = [
+    "image/jpeg", 
+    "image/jpg", 
+    "image/png", 
+    "image/webp",
+    "application/pdf"  // Allow PDF files for carousel exports
+  ];
 
   return allowedTypes.includes(contentType.toLowerCase());
 }

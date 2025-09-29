@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -53,7 +52,7 @@ const StylePanel: React.FC = () => {
     setCurrentStyle, // Add setCurrentStyle
   } = useAssetContext();
 
-  const [upsertDesign, { loading: savingDesign, error: savingDesignError }] =
+  const [upsertDesign, { loading: savingDesign }] =
     useUpsertDesign();
 
   const authDialogRef = useRef<AuthDialogHandle>(null);
@@ -130,13 +129,15 @@ const StylePanel: React.FC = () => {
   }, [currentAssetType]);
 
   const handleExportClick = () => {
-    if (isSignedIn) {
-      if (hasAccessToTemplate(Number(currentTemplateId), currentAssetType)) {
-        setShowExportModal(true);
-      } else {
-        authDialogRef?.current?.setAuthView("signUp");
-        authDialogRef?.current?.open();
-      }
+    if (!isSignedIn) {
+      // For unauthenticated users, show auth prompt for all exports
+      authDialogRef?.current?.setAuthView("signUp");
+      authDialogRef?.current?.open();
+      return;
+    }
+
+    if (hasAccessToTemplate(Number(currentTemplateId), currentAssetType)) {
+      setShowExportModal(true);
     } else {
       authDialogRef?.current?.setAuthView("signUp");
       authDialogRef?.current?.open();
@@ -179,8 +180,8 @@ const StylePanel: React.FC = () => {
       } else {
         toast.success("Design updated successfully!");
       }
-    } catch (error) {
-      console.error("Save design error:", error);
+    } catch {
+      // Handle error silently in production or log appropriately
       toast.error("Failed to save design. Please try again.");
     }
   };
@@ -292,7 +293,7 @@ const StylePanel: React.FC = () => {
 
   return (
     <>
-      <AuthDialog showSignUpForm={false} ref={authDialogRef} />
+      <AuthDialog ref={authDialogRef} />
       <div>
         <SideBar mainContent={mainContent} HeaderContent={header} />
 
