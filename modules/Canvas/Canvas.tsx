@@ -11,7 +11,7 @@ import { useCanvasRef } from "@/hooks/canvas";
 import { useUpdatePost } from "@/hooks/post";
 import * as htmlToImage from "html-to-image";
 import { Button } from "@/components/ui/button";
-import {useRouter} from "next/navigation"
+import { useRouter } from "next/navigation";
 export type CanvasProps = {
   type: ComponentType;
 };
@@ -26,7 +26,7 @@ const Canvas = ({ type }: CanvasProps) => {
   const Component = componentMap[type];
   const searchParams = useSearchParams();
   const postId = searchParams.get("pid");
-  const router= useRouter();
+  const router = useRouter();
   const { uploadToS3, loading: isUploading } = useS3Upload();
   const { canvasRef } = useCanvasRef();
   const [upsertDesign, { loading: isSaving }] = useUpsertDesign();
@@ -62,7 +62,7 @@ const Canvas = ({ type }: CanvasProps) => {
 
     try {
       const imageBlob = await htmlToImage.toBlob(canvasRef.current, {
-        pixelRatio: 2,       
+        pixelRatio: 2,
       });
 
       if (!imageBlob) {
@@ -104,8 +104,8 @@ const Canvas = ({ type }: CanvasProps) => {
           ? "Design saved and added to post!"
           : "Design updated and added to post!"
       );
-      
-      router.push(`http://localhost:3000/app/ai-tools?pid=${postId}`)
+
+      router.push(`/app/ai-tools?pid=${postId}`);
     } catch (error) {
       toast.error(
         `Failed to add to post: ${
